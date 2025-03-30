@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Ensure sidebar appears above map */
+.sidebar {
+  z-index: 1000 !important;
+}
+
+/* Fix marker icon positioning */
+.custom-div-icon {
+  background: none;
+  border: none;
+}
+
+/* Emoji marker styles */
+.emoji-marker {
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+}
+
+/* Fix popup styles */
+.leaflet-popup {
+  z-index: 1001;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  min-width: 200px;
+}
+
+.leaflet-popup-content-wrapper {
+  padding: 0;
+}
+
+/* Hot Dog Party Animation */
+@keyframes hotdog {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1) rotate(360deg);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1) rotate(720deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) rotate(1080deg);
+  }
+}
+
+.animate-hotdog {
+  animation: hotdog 5s ease-out forwards;
+}
