@@ -37,10 +37,7 @@ const CATEGORY_EMOJIS = {
 const ADMIN_PASSWORD = 'strongjasper';
 
 function App() {
-  const [locations, setLocations] = useState(() => {
-    const saved = localStorage.getItem('locations');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -50,12 +47,40 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [password, setPassword] = useState('');
   const [view, setView] = useState('map'); // 'map' or 'list'
-  const [customEmoji, setCustomEmoji] = useState('📍'); // Add this line
+  const [customEmoji, setCustomEmoji] = useState('📍');
   const mapRef = useRef(null);
 
+  // Load locations from JSON file
+  useEffect(() => {
+    fetch('/locations.json')
+      .then(response => response.json())
+      .then(data => setLocations(data.locations))
+      .catch(error => console.error('Error loading locations:', error));
+  }, []);
+
+  // Save locations when admin makes changes
   useEffect(() => {
     if (isAdmin) {
-      localStorage.setItem('locations', JSON.stringify(locations));
+      // In development, we'll update localStorage for testing
+      if (process.env.NODE_ENV === 'development') {
+        localStorage.setItem('locations', JSON.stringify(locations));
+      }
+      
+      // In production, we'll download the updated JSON
+      if (process.env.NODE_ENV === 'production') {
+        const dataStr = JSON.stringify({ locations }, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'locations.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        alert('Location data has been downloaded. Please update the locations.json file in your GitHub repository to make the changes visible to everyone.');
+      }
     }
   }, [locations, isAdmin]);
 
