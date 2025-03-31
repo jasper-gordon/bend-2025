@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { FaChevronLeft, FaChevronRight, FaSearch, FaLock, FaUnlock, FaMap, FaList, FaCheck } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaSearch, FaLock, FaUnlock, FaMap, FaList, FaCheck, FaDog } from 'react-icons/fa';
 import HotDogParty from './components/HotDogParty';
+import CooperParty from './components/CooperParty';
 
 const INITIAL_CENTER = [44.0582, -121.3153]; // Bend, OR coordinates
 const INITIAL_ZOOM = 13;
@@ -23,12 +24,12 @@ const MAP_STYLES = {
   }
 };
 
-const CATEGORIES = ['Food', 'Bars', 'Activities', 'Home'];
+const CATEGORIES = ['Food', 'Beverages', 'Activities', 'Home'];
 
 // Common emojis for different categories (suggestions only)
 const CATEGORY_EMOJIS = {
-  Food: ['🍽️', '🍕', '🍜', '🍣', '🥗', '🍳', '🥪', '☕', '🍰', '🍦'],
-  Bars: ['🍺', '🍷', '🍸', '🍹', '🥂', '🍻', '🥃'],
+  Food: ['🍽️', '🍕', '🍜', '🍣', '🥗', '🥪', '🍰', '🍦'],
+  Beverages: ['🍺', '🍷', '🍸', '🍹', '🥂', '🍻', '🥃'],
   Activities: ['🏃', '🚴', '⛷️', '🏂', '🎣', '⛰️', '🏕️', '🎯', '🎨', '🎭', '🎪', '🎢', '🏖️', '🏊'],
   Home: ['🏠', '🏡', '🏘️', '🏚️', '🏛️', '🏰']
 };
@@ -40,13 +41,13 @@ function App() {
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Start closed
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState(new Set());
   const [mapStyle, setMapStyle] = useState('detailed');
   const [isAdmin, setIsAdmin] = useState(false);
   const [password, setPassword] = useState('');
-  const [view, setView] = useState('map'); // 'map' or 'list'
+  const [view, setView] = useState('map'); // 'map' or 'list' or 'cooper'
   const [customEmoji, setCustomEmoji] = useState('📍');
   const [showSaveIndicator, setShowSaveIndicator] = useState(false);
   const mapRef = useRef(null);
@@ -128,11 +129,11 @@ function App() {
 
   const createEmojiIcon = (emoji) => {
     return L.divIcon({
-      html: `<div class="emoji-marker">${emoji}</div>`,
+      html: `<div class="emoji-marker" style="display: inline-flex; gap: 4px; white-space: nowrap;">${Array.isArray(emoji) ? emoji.join('') : emoji}</div>`,
       className: 'custom-div-icon',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32]
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40]
     });
   };
 
@@ -169,14 +170,16 @@ function App() {
   const filteredLocations = locations.filter(location => {
     const matchesSearch = location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          location.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategories.size === 0 || selectedCategories.has(location.category);
+    const categories = Array.isArray(location.category) ? location.category : [location.category];
+    const matchesCategory = selectedCategories.size === 0 || 
+                          categories.some(cat => selectedCategories.has(cat));
     return matchesSearch && matchesCategory;
   });
 
   const LocationEditor = ({ location }) => {
     const [name, setName] = useState(location.name);
     const [description, setDescription] = useState(location.description);
-    const [category, setCategory] = useState(location.category);
+    const [categories, setCategories] = useState(Array.isArray(location.category) ? location.category : [location.category]);
     const [emoji, setEmoji] = useState(location.emoji);
 
     const handleSubmit = (e) => {
@@ -185,68 +188,91 @@ function App() {
         ...location,
         name,
         description,
-        category,
+        category: categories.length > 0 ? categories : ['Food'], // Ensure at least one category
         emoji
       });
     };
 
+    const toggleCategory = (category) => {
+      setCategories(prev => {
+        if (prev.includes(category)) {
+          return prev.filter(c => c !== category);
+        } else {
+          return [...prev, category];
+        }
+      });
+    };
+
+    // Get the first category or default to 'Food'
+    const currentCategory = categories[0] || 'Food';
+    const availableEmojis = CATEGORY_EMOJIS[currentCategory] || CATEGORY_EMOJIS['Food'];
+
     return (
-      <form onSubmit={handleSubmit} className="p-4 bg-white rounded-lg shadow">
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Location name"
-          className="w-full p-2 mb-2 border rounded"
-        />
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Description"
-          className="w-full p-2 mb-2 border rounded"
-        />
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full p-2 mb-2 border rounded"
-        >
-          {CATEGORIES.map(cat => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
-        <div className="mb-2">
-          <label className="block text-sm font-medium mb-1">Choose Icon</label>
-          <div className="grid grid-cols-5 gap-2">
-            {CATEGORY_EMOJIS[category].map((em) => (
-              <button
-                key={em}
-                type="button"
-                onClick={() => setEmoji(em)}
-                className={`p-2 text-xl rounded ${
-                  emoji === em ? 'bg-blue-100 border-2 border-blue-500' : 'border hover:bg-gray-100'
-                }`}
-              >
-                {em}
-              </button>
-            ))}
+      <div className="fixed top-20 right-4 w-80 bg-white rounded-lg shadow-lg p-4 z-[1000]">
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Location name"
+            className="w-full p-2 mb-2 border rounded"
+          />
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Description"
+            className="w-full p-2 mb-2 border rounded"
+          />
+          <div className="mb-2">
+            <label className="block text-sm font-medium mb-1">Categories</label>
+            <div className="space-y-2">
+              {CATEGORIES.map(cat => (
+                <label key={cat} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={categories.includes(cat)}
+                    onChange={() => toggleCategory(cat)}
+                    className="form-checkbox h-4 w-4 text-blue-500"
+                  />
+                  <span>{cat}</span>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="flex justify-between">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Save
-          </button>
-          <button
-            type="button"
-            onClick={() => handleLocationDelete(location.id)}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Delete
-          </button>
-        </div>
-      </form>
+          <div className="mb-2">
+            <label className="block text-sm font-medium mb-1">Choose Icon</label>
+            <div className="grid grid-cols-5 gap-2">
+              {availableEmojis.map((em) => (
+                <button
+                  key={em}
+                  type="button"
+                  onClick={() => setEmoji(em)}
+                  className={`p-2 text-xl rounded ${
+                    emoji === em ? 'bg-blue-100 border-2 border-blue-500' : 'border hover:bg-gray-100'
+                  }`}
+                >
+                  {em}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-between">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={() => handleLocationDelete(location.id)}
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Delete
+            </button>
+          </div>
+        </form>
+      </div>
     );
   };
 
@@ -273,8 +299,40 @@ function App() {
 
   const ListView = () => (
     <div className="flex-1 p-6 overflow-auto">
+      <div className="mb-6">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search locations..."
+          className="w-full p-2 border rounded mb-4"
+        />
+        <div className="flex flex-wrap gap-2">
+          {CATEGORIES.map(category => (
+            <label key={category} className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-full">
+              <input
+                type="checkbox"
+                checked={selectedCategories.has(category)}
+                onChange={() => {
+                  const newCategories = new Set(selectedCategories);
+                  if (newCategories.has(category)) {
+                    newCategories.delete(category);
+                  } else {
+                    newCategories.add(category);
+                  }
+                  setSelectedCategories(newCategories);
+                }}
+                className="form-checkbox h-4 w-4 text-blue-500"
+              />
+              <span>{category}</span>
+            </label>
+          ))}
+        </div>
+      </div>
       {CATEGORIES.map(category => {
-        const categoryLocations = filteredLocations.filter(loc => loc.category === category);
+        const categoryLocations = filteredLocations.filter(loc => 
+          Array.isArray(loc.category) ? loc.category.includes(category) : loc.category === category
+        );
         if (categoryLocations.length === 0) return null;
 
         return (
@@ -346,154 +404,182 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  useEffect(() => {
+    // Add necessary styles to head
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes flyAndFade {
+        0% {
+          transform: translate(0, 0) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(${Math.random() * 200 - 100}px, ${-Math.random() * 200 - 100}px) rotate(${Math.random() * 360}deg);
+          opacity: 0;
+        }
+      }
+      @keyframes hotdog {
+        0% {
+          transform: translate(0, 0) rotate(0deg) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(${Math.random() * 200 - 100}px, ${-Math.random() * 200 - 100}px) rotate(${Math.random() * 360}deg) scale(0);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
   return (
     <div className="h-screen w-screen flex flex-col">
       {/* Header */}
-      <header className="bg-blue-600 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Bend 2025</h1>
-            <div className="flex items-center gap-4">
-              {/* View Toggle */}
-              <div className="flex bg-blue-700 rounded-lg p-1">
+      <div className="bg-white shadow-lg p-4 z-[1000] flex justify-between items-center fixed top-0 left-0 right-0">
+        <h1 className="text-2xl font-bold flex-1 text-center">Bend 2025</h1>
+        <div className="flex items-center space-x-4">
+          <HotDogParty />
+          {!isAdmin && (
+            <button
+              onClick={() => {
+                const password = prompt('Enter admin password:');
+                if (password === ADMIN_PASSWORD) {
+                  setIsAdmin(true);
+                } else if (password !== null) {
+                  alert('Incorrect password');
+                }
+              }}
+              className="p-2 text-gray-500 hover:text-gray-700 flex items-center gap-2"
+              title="Admin Login"
+            >
+              <FaLock className="text-xl" />
+              <span className="hidden md:inline">Admin Login</span>
+            </button>
+          )}
+          {isAdmin && (
+            <div className="flex items-center space-x-4">
+              <span className="text-green-300 flex items-center gap-1">
+                <FaUnlock /> Admin
+              </span>
+              <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => setView('map')}
-                  className={`px-3 py-1 rounded flex items-center gap-2 ${
-                    view === 'map' 
-                      ? 'bg-white text-blue-600' 
-                      : 'text-white hover:bg-blue-800'
-                  }`}
+                  onClick={handleExportLocations}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow"
                 >
-                  <FaMap /> Map
+                  Export Locations
                 </button>
                 <button
-                  onClick={() => setView('list')}
-                  className={`px-3 py-1 rounded flex items-center gap-2 ${
-                    view === 'list' 
-                      ? 'bg-white text-blue-600' 
-                      : 'text-white hover:bg-blue-800'
-                  }`}
+                  onClick={handleLogout}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow"
                 >
-                  <FaList /> List
+                  Logout
                 </button>
               </div>
-              
-              {/* Admin Controls */}
-              {!isAdmin ? (
-                <form onSubmit={handleLogin} className="flex gap-2">
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Admin password"
-                    className="px-3 py-1 rounded text-gray-800 text-sm w-32"
-                  />
-                  <button
-                    type="submit"
-                    className="p-2 bg-blue-500 text-white rounded hover:bg-blue-400"
-                  >
-                    <FaLock />
-                  </button>
-                </form>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span className="text-green-300 flex items-center gap-1">
-                    <FaUnlock /> Admin
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={handleExportLocations}
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow"
-                    >
-                      Export Locations
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
-          </div>
+          )}
         </div>
-      </header>
+      </div>
 
-      {/* Main Content */}
-      <div className="flex-1 relative">
-        {view === 'map' ? (
-          <>
-            {/* Sidebar */}
-            <div 
-              className={`sidebar bg-white shadow-lg transition-all duration-300 ${
-                isSidebarOpen ? 'w-80' : 'w-0'
-              } overflow-hidden flex flex-col absolute h-full z-[1000]`}
-            >
+      <div className="flex-1 relative mt-16">
+        {/* Navigation - Same for both mobile and desktop */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg flex justify-around items-center p-4 z-[1001]">
+          <button
+            onClick={() => { setView('map'); setIsSidebarOpen(true); }}
+            className={`flex flex-col items-center ${view === 'map' ? 'text-blue-500' : 'text-gray-500'}`}
+          >
+            <FaMap className="text-2xl" />
+            <span className="text-xs">Map</span>
+          </button>
+          <button
+            onClick={() => { setView('list'); setIsSidebarOpen(false); }}
+            className={`flex flex-col items-center ${view === 'list' ? 'text-blue-500' : 'text-gray-500'}`}
+          >
+            <FaList className="text-2xl" />
+            <span className="text-xs">List</span>
+          </button>
+          <button
+            onClick={() => setView('cooper')}
+            className={`flex flex-col items-center ${view === 'cooper' ? 'text-blue-500' : 'text-gray-500'}`}
+          >
+            <FaDog className="text-2xl" />
+            <span className="text-xs">Cooper</span>
+          </button>
+        </div>
+
+        {/* Toggle Sidebar Button - Only show in map view */}
+        {view === 'map' && (
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="absolute top-4 left-4 z-[1001] bg-white p-2 rounded shadow-lg"
+          >
+            {isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
+          </button>
+        )}
+
+        {/* Sidebar - Only show in map view */}
+        {view === 'map' && (
+          <div
+            className={`absolute top-0 left-0 h-full bg-white shadow-lg transition-transform duration-300 z-[1000] 
+                       w-full md:w-96 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          >
+            <div className="h-full overflow-y-auto">
               <div className="p-4">
-                <div className="flex items-center mb-4">
-                  <FaSearch className="text-gray-400 mr-2" />
+                <div className="mb-4">
                   <input
                     type="text"
-                    placeholder="Search locations..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search locations..."
                     className="w-full p-2 border rounded"
                   />
                 </div>
+
                 <div className="mb-4">
-                  <h3 className="font-bold mb-2">Map Style</h3>
-                  <select
-                    value={mapStyle}
-                    onChange={(e) => setMapStyle(e.target.value)}
-                    className="w-full p-2 border rounded"
-                  >
-                    <option value="minimal">Minimal</option>
-                    <option value="light">Light</option>
-                    <option value="detailed">Detailed</option>
-                  </select>
-                </div>
-                <div className="mb-4">
-                  <h3 className="font-bold mb-2">Categories</h3>
-                  <div className="flex flex-col gap-2">
+                  <h3 className="font-semibold mb-2">Categories</h3>
+                  <div className="space-y-2">
                     {CATEGORIES.map(category => (
-                      <label key={category} className="flex items-center">
+                      <label key={category} className="flex items-center space-x-2">
                         <input
                           type="checkbox"
                           checked={selectedCategories.has(category)}
-                          onChange={(e) => {
+                          onChange={() => {
                             const newCategories = new Set(selectedCategories);
-                            if (e.target.checked) {
-                              newCategories.add(category);
-                            } else {
+                            if (newCategories.has(category)) {
                               newCategories.delete(category);
+                            } else {
+                              newCategories.add(category);
                             }
                             setSelectedCategories(newCategories);
                           }}
-                          className="mr-2"
+                          className="form-checkbox h-4 w-4 text-blue-500"
                         />
                         <span>{category}</span>
                       </label>
                     ))}
                   </div>
                 </div>
-                <div className="overflow-y-auto">
+
+                <div className="space-y-4">
                   {filteredLocations.map(location => (
                     <div
                       key={location.id}
-                      className="p-2 hover:bg-gray-100 cursor-pointer rounded mb-2"
+                      className="p-3 bg-gray-50 rounded cursor-pointer hover:bg-gray-100"
                       onClick={() => {
                         setSelectedLocation(location);
-                        setIsEditing(isAdmin);
-                        mapRef.current?.flyTo(location.position, 15);
+                        if (mapRef.current) {
+                          mapRef.current.setView(location.position, INITIAL_ZOOM);
+                        }
                       }}
                     >
-                      <div className="font-bold">
-                        {location.emoji} {location.name || 'Unnamed Location'}
+                      <div className="font-bold flex items-center gap-1">
+                        <span className="inline-flex gap-1">
+                          {Array.isArray(location.emoji) ? location.emoji.join(' ') : location.emoji}
+                        </span>
+                        {location.name}
                       </div>
-                      <div className="text-sm text-gray-600">
-                        {location.category}
+                      <div className="text-sm text-gray-500">
+                        {Array.isArray(location.category) ? location.category.join(', ') : location.category}
                       </div>
                       <div className="text-sm text-gray-600 truncate">
                         {location.description}
@@ -503,150 +589,101 @@ function App() {
                 </div>
               </div>
             </div>
-            
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="absolute top-4 left-0 z-[1001] bg-white p-2 rounded-r shadow-lg"
-            >
-              {isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
-            </button>
+          </div>
+        )}
 
-            {/* Map */}
-            <MapContainer
-              center={INITIAL_CENTER}
-              zoom={INITIAL_ZOOM}
-              className="h-full w-full"
-              ref={mapRef}
-            >
-              <TileLayer
-                url={MAP_STYLES[mapStyle].url}
-                attribution={MAP_STYLES[mapStyle].attribution}
-              />
-              <MapEvents />
-              {filteredLocations.map(location => (
-                <Marker
-                  key={location.id}
-                  position={location.position}
-                  icon={createEmojiIcon(location.emoji)}
-                  eventHandlers={{
-                    click: () => {
-                      setSelectedLocation(location);
-                      setIsEditing(isAdmin);
-                    }
-                  }}
-                >
-                  {selectedLocation?.id === location.id && (
-                    <Popup>
-                      {isAdmin && isEditing ? (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                          <div className="bg-white p-4 rounded-lg max-w-md w-full">
-                            <h2 className="text-xl font-bold mb-4">Edit Location</h2>
-                            <form onSubmit={(e) => {
-                              e.preventDefault();
-                              const updatedLocations = locations.map(loc =>
-                                loc.id === selectedLocation.id ? selectedLocation : loc
-                              );
-                              setLocations(updatedLocations);
-                              setSelectedLocation(null);
-                              setIsEditing(false);
-                            }}>
-                              <div className="space-y-4">
-                                <div>
-                                  <label className="block text-sm font-medium">Name</label>
-                                  <input
-                                    type="text"
-                                    value={selectedLocation.name}
-                                    onChange={(e) => setSelectedLocation({...selectedLocation, name: e.target.value})}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                    required
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-medium">Description</label>
-                                  <textarea
-                                    value={selectedLocation.description}
-                                    onChange={(e) => setSelectedLocation({...selectedLocation, description: e.target.value})}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                    rows="3"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-medium">Category</label>
-                                  <select
-                                    value={selectedLocation.category}
-                                    onChange={(e) => setSelectedLocation({...selectedLocation, category: e.target.value})}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                  >
-                                    {CATEGORIES.map(category => (
-                                      <option key={category} value={category}>{category}</option>
-                                    ))}
-                                  </select>
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-medium">Emoji</label>
-                                  <div className="flex items-center space-x-2">
-                                    <EmojiInput
-                                      value={selectedLocation.emoji}
-                                      onChange={(emoji) => setSelectedLocation({...selectedLocation, emoji: emoji})}
-                                    />
-                                    <div className="text-sm text-gray-500">
-                                      Suggested: {CATEGORY_EMOJIS[selectedLocation.category].map(emoji => (
-                                        <button
-                                          type="button"
-                                          key={emoji}
-                                          onClick={() => setSelectedLocation({...selectedLocation, emoji: emoji})}
-                                          className="hover:bg-gray-100 px-1 rounded"
-                                        >
-                                          {emoji}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="flex justify-end space-x-2 mt-4">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedLocation(null);
-                                    setIsEditing(false);
-                                  }}
-                                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  type="submit"
-                                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                                >
-                                  Save
-                                </button>
-                              </div>
-                            </form>
-                          </div>
-                        </div>
-                      ) : (
-                        <LocationView location={location} />
-                      )}
-                    </Popup>
-                  )}
-                </Marker>
-              ))}
-            </MapContainer>
-          </>
-        ) : (
-          <ListView />
+        {/* Main Content */}
+        {view === 'map' && (
+          <MapContainer
+            center={INITIAL_CENTER}
+            zoom={INITIAL_ZOOM}
+            className="w-full h-full"
+            ref={mapRef}
+          >
+            <TileLayer {...MAP_STYLES[mapStyle]} />
+            {filteredLocations.map(location => (
+              <Marker
+                key={location.id}
+                position={location.position}
+                icon={createEmojiIcon(Array.isArray(location.emoji) ? location.emoji[0] : location.emoji)}
+                eventHandlers={{
+                  click: () => {
+                    setSelectedLocation(location);
+                    setIsEditing(false);
+                  }
+                }}
+              >
+                <Popup>
+                  <div className="p-4">
+                    <div className="font-bold flex items-center gap-1 mb-2">
+                      <span className="inline-flex gap-1">
+                        {Array.isArray(location.emoji) ? location.emoji.join(' ') : location.emoji}
+                      </span>
+                      {location.name}
+                    </div>
+                    <div className="mb-2">{location.description}</div>
+                    {isAdmin && (
+                      <div className="mt-2">
+                        <button
+                          onClick={() => setIsEditing(true)}
+                          className="px-2 py-1 bg-blue-500 text-white rounded text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleLocationDelete(location.id)}
+                          className="px-2 py-1 bg-red-500 text-white rounded text-sm ml-2"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+            {isAdmin && <MapEvents />}
+          </MapContainer>
+        )}
+
+        {view === 'cooper' && (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-orange-300">
+            <img
+              src="/cooper.jpg"
+              alt="Cooper"
+              className="w-64 h-64 rounded-full object-cover shadow-lg mb-4"
+            />
+            <h2 className="text-2xl font-bold mb-2">Cooper</h2>
+            <p className="text-gray-600 mb-4">Corvalis Coop as they say</p>
+          </div>
+        )}
+
+        {view === 'list' && (
+          <div className="w-full h-full overflow-auto bg-white">
+            <ListView />
+          </div>
+        )}
+
+        {/* Location Editor */}
+        {isEditing && selectedLocation && (
+          <LocationEditor location={selectedLocation} />
         )}
       </div>
+
       {/* Save indicator */}
       {isAdmin && showSaveIndicator && (
-        <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 z-50">
+        <div className="fixed bottom-20 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 z-[1001]">
           <FaCheck />
           <span>Changes saved</span>
         </div>
       )}
-      {/* Hot Dog Party Button */}
-      <HotDogParty />
+
+      {/* Cooper Party Button - Show in Cooper view for both mobile and desktop */}
+      {view === 'cooper' && (
+        <div className="fixed bottom-20 right-4 z-[1001]">
+          <CooperParty />
+        </div>
+      )}
     </div>
   );
 }

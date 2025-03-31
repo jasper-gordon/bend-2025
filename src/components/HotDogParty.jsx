@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 const HotDogParty = () => {
   const [hotdogs, setHotdogs] = useState([]);
@@ -32,11 +32,10 @@ const HotDogParty = () => {
       <button
         onClick={startParty}
         disabled={isPartyTime}
-        className="fixed bottom-4 right-4 bg-white rounded-full w-16 h-16 shadow-lg flex items-center justify-center text-3xl hover:scale-110 transition-transform z-[9999] cursor-pointer border-2 border-gray-200"
+        className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
         title="Hot Dog Party!"
-        style={{ fontSize: '2rem' }}
       >
-        🌭
+        <span>🌭</span>
       </button>
       {hotdogs.map(({ id, left, top, scale, rotation, delay }) => (
         <div
