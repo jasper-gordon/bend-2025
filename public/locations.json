@@ -1,3 +1,312 @@
 {
-  "locations": []
+  "locations": [
+    {
+      "id": 1743431149290,
+      "position": [
+        44.02378121258474,
+        -121.36564493179323
+      ],
+      "name": "HQ",
+      "description": "When in doubt, come back to base. Address: 19110 Gateway Loop Bend, OR 97702 https://maps.app.goo.gl/hzv3BChsGwDzRcWV8",
+      "category": "Home",
+      "emoji": "🏰"
+    },
+    {
+      "id": 1743431188643,
+      "position": [
+        44.027769518721286,
+        -121.35749101638794
+      ],
+      "name": "Casa de Steve",
+      "description": "There is a gate, although sometimes it’s open. If closed, you can go around through Tetherow lol.\n\nAddress: 19320 Eaton Ln\nBend, OR 97702",
+      "category": "Home",
+      "emoji": "🤓"
+    },
+    {
+      "id": 1743431289930,
+      "position": [
+        44.056458896673476,
+        -121.33064746856691
+      ],
+      "name": " 10 Barrel Brewing (west)",
+      "description": "Oregon brew pub chain. Great beer, good food, pretty big.",
+      "category": "Bars",
+      "emoji": "🍺"
+    },
+    {
+      "id": 1743431354596,
+      "position": [
+        44.085920449000795,
+        -121.28103733062746
+      ],
+      "name": "10 Barrel Brewing (east)",
+      "description": "Oregon brew pub chain. Great beer, good food, pretty big.",
+      "category": "Bars",
+      "emoji": "🍺"
+    },
+    {
+      "id": 1743431444353,
+      "position": [
+        44.065263440038805,
+        -121.25442981719972
+      ],
+      "name": "Aina Kauai Style Grill",
+      "description": "Hawaiin food truck, next to other food trucks outside Bevel Brewing",
+      "category": "Food",
+      "emoji": "🍱"
+    },
+    {
+      "id": 1743431529395,
+      "position": [
+        44.04813115365613,
+        -121.33073329925539
+      ],
+      "name": "Bangers and Brews",
+      "description": "Great brats/sausages, lots of different meats and toppings. Awesome casual lunch spot",
+      "category": "Food",
+      "emoji": "🌭"
+    },
+    {
+      "id": 1743431589593,
+      "position": [
+        44.051662876566866,
+        -121.31440401077272
+      ],
+      "name": "Juno Japanese Sushi Garden",
+      "description": "Awesome sushi. Part of Podski but they're in the indoor section. Text the number and ask for the menu if you don't have it, and you can also put your order in via text. Or just go in person - it's a cool place",
+      "category": "Food",
+      "emoji": "🍣"
+    },
+    {
+      "id": 1743431646828,
+      "position": [
+        44.06029080719988,
+        -121.30759119987488
+      ],
+      "name": "Silver Moon Brewery",
+      "description": "Solid spot. Lots of food trucks outside",
+      "category": "Bars",
+      "emoji": "🍺"
+    },
+    {
+      "id": 1743431699497,
+      "position": [
+        44.06220281467604,
+        -121.32541179656984
+      ],
+      "name": "Spork",
+      "description": "More than a utensil. Self-described \"eclectic\" spot, Asian/Indian/Tex Mex/wraps and other good stuff. Highly recommend!",
+      "category": "Food",
+      "emoji": "🍽️"
+    },
+    {
+      "id": 1743431889341,
+      "position": [
+        44.056458896673476,
+        -121.32939219474794
+      ],
+      "name": "Bend Breakfast Burrito (inside Boss Rambler)",
+      "description": "Tasty tasty breakfast burritos, double check hours but just an easy W",
+      "category": "Food",
+      "emoji": "🌯"
+    },
+    {
+      "id": 1743431965536,
+      "position": [
+        44.056358662285305,
+        -121.32925271987916
+      ],
+      "name": "Boss Rambler",
+      "description": "Great beers! Great vibes! Sit inside or out. ",
+      "category": "Bars",
+      "emoji": "🍺"
+    },
+    {
+      "id": 1743432042994,
+      "position": [
+        44.05643576567588,
+        -121.32869482040407
+      ],
+      "name": "Kitchen Window",
+      "description": "Takeaway delicious sourdough pan pizza and donut holes (worth it 100%); get a beer at Boss Rambler while they make your order",
+      "category": "Food",
+      "emoji": "🍕"
+    },
+    {
+      "id": 1743432125857,
+      "position": [
+        44.05906493121221,
+        -121.35581731796266
+      ],
+      "name": "Sparrow Bakery",
+      "description": "Amazing bakery, has yet to miss. Known for the “Ocean Roll.” Pastries, some sandwiches, worth it. ",
+      "category": "Food",
+      "emoji": "🥐"
+    },
+    {
+      "id": 1743432386948,
+      "position": [
+        44.05911119114427,
+        -121.35719060897829
+      ],
+      "name": "Thump Coffee",
+      "description": "Multiple locations in the city, everything is pretty good",
+      "category": "Food",
+      "emoji": "☕"
+    },
+    {
+      "id": 1743432479074,
+      "position": [
+        44.05903409123745,
+        -121.31207585334779
+      ],
+      "name": "Thump Coffee",
+      "description": "Multiple locations in the city, everything is pretty good",
+      "category": "Food",
+      "emoji": "☕"
+    },
+    {
+      "id": 1743432571996,
+      "position": [
+        44.06649304219546,
+        -121.30097150802614
+      ],
+      "name": "Midtown Yacht Club",
+      "description": "Beer and food carts",
+      "category": "Food",
+      "emoji": "🍺🍔"
+    },
+    {
+      "id": 1743432659567,
+      "position": [
+        44.05863317010352,
+        -121.3548517227173
+      ],
+      "name": "Poké Row",
+      "description": "Yummy poké bowls, good for nearby healthy takeout lunch or dinner. Casual.",
+      "category": "Food",
+      "emoji": "🍣"
+    },
+    {
+      "id": 1743432738993,
+      "position": [
+        44.0512002174304,
+        -121.3129234313965
+      ],
+      "name": "Papi Chulo's",
+      "description": "Taqueria near Market of Choice. The breakfast burrito is great and reasonably priced ($10).",
+      "category": "Food",
+      "emoji": "🌯"
+    },
+    {
+      "id": 1743432843310,
+      "position": [
+        44.061686270356724,
+        -121.32725715637208
+      ],
+      "name": "Nancy P's Cafe & Bakery",
+      "description": "Eliza's cousin recommends the savory breakfast pockets",
+      "category": "Food",
+      "emoji": "🥐"
+    },
+    {
+      "id": 1743432926322,
+      "position": [
+        44.051153951317964,
+        -121.30785942077638
+      ],
+      "name": "Crux Fermentation Project",
+      "description": "Feels like a brewery that only locals go to. Lots of seating inside and out, solid food as well.",
+      "category": "Bars",
+      "emoji": "🍺🍔"
+    },
+    {
+      "id": 1743433079896,
+      "position": [
+        44.09049792920812,
+        -121.29194855690004
+      ],
+      "name": "Bridge 99",
+      "description": "Very solid beers - wide range of options, feels like a local joint. Good vibes",
+      "category": "Bars",
+      "emoji": "🍺"
+    },
+    {
+      "id": 1743433132162,
+      "position": [
+        44.051045996915086,
+        -121.331205368042
+      ],
+      "name": "Prost",
+      "description": "Great German food and beers! Usually a lot of seating indoor outdoor, definitely get fries.",
+      "category": "Food",
+      "emoji": "🍺🥨"
+    },
+    {
+      "id": 1743433218337,
+      "position": [
+        44.04387429945679,
+        -121.31554126739503
+      ],
+      "name": "Red Robin Old Mill District",
+      "description": "Cooper’s favorite ",
+      "category": "Food",
+      "emoji": "🍔"
+    },
+    {
+      "id": 1743433278083,
+      "position": [
+        44.049781373541805,
+        -121.32057309150697
+      ],
+      "name": "Bend Whitewater Park",
+      "description": "River surfing! Stationary wave, lots of great walking around too.",
+      "category": "Activities",
+      "emoji": "🏄‍♂️"
+    },
+    {
+      "id": 1743433385456,
+      "position": [
+        44.01778667720139,
+        -121.3749361038208
+      ],
+      "name": "Good Dog!",
+      "description": "Loop very close to Tetherow. A few miles out and back to the river. Lovely casual short walk",
+      "category": "Activities",
+      "emoji": "🚶‍♀️‍➡️"
+    },
+    {
+      "id": 1743433488143,
+      "position": [
+        44.06008264136842,
+        -121.28236770629884
+      ],
+      "name": "Pilot Butte",
+      "description": "Easy hike. East part of the city, roughly 2 miles round trip. Great to do on a clear day when all the mountains are out.",
+      "category": "Activities",
+      "emoji": "🚶‍♀️‍➡️"
+    },
+    {
+      "id": 1743433535929,
+      "position": [
+        43.97953700050605,
+        -121.6824245452881
+      ],
+      "name": "Mt Bachelor",
+      "description": "",
+      "category": "Activities",
+      "emoji": "⛷️"
+    },
+    {
+      "id": 1743433640680,
+      "position": [
+        44.36166039985622,
+        -121.1491584777832
+      ],
+      "name": "Smith Rock State Park",
+      "description": "Incredible rock climbing with plenty of trails to walk and hike around too. Can go up top or stay on the ground",
+      "category": "Activities",
+      "emoji": "🧗"
+    }
+  ]
 }

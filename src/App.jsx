@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { FaChevronLeft, FaChevronRight, FaSearch, FaLock, FaUnlock, FaMap, FaList } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaSearch, FaLock, FaUnlock, FaMap, FaList, FaCheck } from 'react-icons/fa';
 import HotDogParty from './components/HotDogParty';
 
 const INITIAL_CENTER = [44.0582, -121.3153]; // Bend, OR coordinates
@@ -48,26 +48,43 @@ function App() {
   const [password, setPassword] = useState('');
   const [view, setView] = useState('map'); // 'map' or 'list'
   const [customEmoji, setCustomEmoji] = useState('📍');
+  const [showSaveIndicator, setShowSaveIndicator] = useState(false);
   const mapRef = useRef(null);
+  const saveTimeoutRef = useRef(null);
 
-  // Load locations from JSON file
+  // Load locations from localStorage or JSON file
   useEffect(() => {
-    fetch('/locations.json')
-      .then(response => response.json())
-      .then(data => setLocations(data.locations))
-      .catch(error => console.error('Error loading locations:', error));
+    const savedLocations = localStorage.getItem('locations');
+    if (savedLocations) {
+      setLocations(JSON.parse(savedLocations));
+    } else {
+      fetch('/locations.json')
+        .then(response => response.json())
+        .then(data => setLocations(data.locations))
+        .catch(error => console.error('Error loading locations:', error));
+    }
   }, []);
 
-  // Save locations when admin makes changes
+  // Save locations whenever they change
   useEffect(() => {
-    if (isAdmin) {
-      // In development, we'll update localStorage for testing
-      if (process.env.NODE_ENV === 'development') {
-        localStorage.setItem('locations', JSON.stringify(locations));
+    if (locations.length > 0) {
+      localStorage.setItem('locations', JSON.stringify(locations));
+      
+      // Show save indicator for admin users
+      if (isAdmin) {
+        setShowSaveIndicator(true);
+        // Clear any existing timeout
+        if (saveTimeoutRef.current) {
+          clearTimeout(saveTimeoutRef.current);
+        }
+        // Hide indicator after 2 seconds
+        saveTimeoutRef.current = setTimeout(() => {
+          setShowSaveIndicator(false);
+        }, 2000);
       }
       
-      // In production, we'll download the updated JSON
-      if (process.env.NODE_ENV === 'production') {
+      // For admin users in production, still offer the JSON download
+      if (isAdmin && process.env.NODE_ENV === 'production') {
         const dataStr = JSON.stringify({ locations }, null, 2);
         const dataBlob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(dataBlob);
@@ -83,6 +100,15 @@ function App() {
       }
     }
   }, [locations, isAdmin]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -307,6 +333,19 @@ function App() {
     );
   };
 
+  const handleExportLocations = () => {
+    const dataStr = JSON.stringify({ locations }, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'locations.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="h-screen w-screen flex flex-col">
       {/* Header */}
@@ -361,12 +400,20 @@ function App() {
                   <span className="text-green-300 flex items-center gap-1">
                     <FaUnlock /> Admin
                   </span>
-                  <button
-                    onClick={handleLogout}
-                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                  >
-                    Logout
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={handleExportLocations}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow"
+                    >
+                      Export Locations
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -591,6 +638,13 @@ function App() {
           <ListView />
         )}
       </div>
+      {/* Save indicator */}
+      {isAdmin && showSaveIndicator && (
+        <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 z-50">
+          <FaCheck />
+          <span>Changes saved</span>
+        </div>
+      )}
       {/* Hot Dog Party Button */}
       <HotDogParty />
     </div>
