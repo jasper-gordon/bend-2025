@@ -29,8 +29,12 @@
         -121.33064746856691
       ],
       "name": " 10 Barrel Brewing (west)",
-      "description": "Oregon brew pub chain. Great beer, good food, pretty big.",
-      "category": "Bars",
+      "description": "Oregon brew pub chain. Great beer, solid food, pretty big.",
+      "category": [
+        "Bars",
+        "Beverages",
+        "Food"
+      ],
       "emoji": "🍺"
     },
     {
@@ -41,7 +45,11 @@
       ],
       "name": "10 Barrel Brewing (east)",
       "description": "Oregon brew pub chain. Great beer, good food, pretty big.",
-      "category": "Bars",
+      "category": [
+        "Bars",
+        "Food",
+        "Beverages"
+      ],
       "emoji": "🍺"
     },
     {
@@ -63,7 +71,10 @@
       ],
       "name": "Bangers and Brews",
       "description": "Great brats/sausages, lots of different meats and toppings. Awesome casual lunch spot",
-      "category": "Food",
+      "category": [
+        "Food",
+        "Beverages"
+      ],
       "emoji": "🌭"
     },
     {
@@ -173,7 +184,10 @@
       ],
       "name": "Midtown Yacht Club",
       "description": "Beer and food carts",
-      "category": "Food",
+      "category": [
+        "Food",
+        "Beverages"
+      ],
       "emoji": "🍺🍔"
     },
     {
@@ -217,7 +231,11 @@
       ],
       "name": "Crux Fermentation Project",
       "description": "Feels like a brewery that only locals go to. Lots of seating inside and out, solid food as well.",
-      "category": "Bars",
+      "category": [
+        "Bars",
+        "Beverages",
+        "Food"
+      ],
       "emoji": "🍺🍔"
     },
     {
@@ -239,7 +257,10 @@
       ],
       "name": "Prost",
       "description": "Great German food and beers! Usually a lot of seating indoor outdoor, definitely get fries.",
-      "category": "Food",
+      "category": [
+        "Food",
+        "Beverages"
+      ],
       "emoji": "🍺🥨"
     },
     {
@@ -250,7 +271,9 @@
       ],
       "name": "Red Robin Old Mill District",
       "description": "Cooper’s favorite ",
-      "category": "Food",
+      "category": [
+        "Food"
+      ],
       "emoji": "🍔"
     },
     {
