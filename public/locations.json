@@ -31,7 +31,6 @@
       "name": " 10 Barrel Brewing (west)",
       "description": "Oregon brew pub chain. Great beer, solid food, pretty big.",
       "category": [
-        "Bars",
         "Beverages",
         "Food"
       ],
@@ -46,7 +45,6 @@
       "name": "10 Barrel Brewing (east)",
       "description": "Oregon brew pub chain. Great beer, good food, pretty big.",
       "category": [
-        "Bars",
         "Food",
         "Beverages"
       ],
@@ -96,7 +94,7 @@
       ],
       "name": "Silver Moon Brewery",
       "description": "Solid spot. Lots of food trucks outside",
-      "category": "Bars",
+      "category": "Beverages",
       "emoji": "🍺"
     },
     {
@@ -129,7 +127,7 @@
       ],
       "name": "Boss Rambler",
       "description": "Great beers! Great vibes! Sit inside or out. ",
-      "category": "Bars",
+      "category": "Beverages",
       "emoji": "🍺"
     },
     {
@@ -234,7 +232,6 @@
       "name": "Crux Fermentation Project",
       "description": "Feels like a brewery that only locals go to. Lots of seating inside and out, solid food as well.",
       "category": [
-        "Bars",
         "Beverages",
         "Food"
       ],
@@ -248,7 +245,7 @@
       ],
       "name": "Bridge 99",
       "description": "Very solid beers - wide range of options, feels like a local joint. Good vibes",
-      "category": "Bars",
+      "category": "Beverages",
       "emoji": "🍺"
     },
     {
@@ -477,10 +474,22 @@
       "name": "Lava Lanes",
       "description": "All interested bowlers are encouraged to seek out Whitney",
       "category": [
-        "Food",
         "Activities"
       ],
       "emoji": "🎳"
+    },
+    {
+      "id": 1743527777695,
+      "position": [
+        44.0577542181181,
+        -121.3042974472046
+      ],
+      "name": "Dogwood at The Pine Shed",
+      "description": "This is your spot for cocktails. Jasper loves the Rye and Gosling, other visitors like all the other ones. It would be a shame if you didn't stop by the shed :/",
+      "category": [
+        "Beverages"
+      ],
+      "emoji": "🍸"
     }
   ]
 }

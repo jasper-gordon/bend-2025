@@ -682,15 +682,16 @@ function App() {
         )}
 
         {view === 'cooper' && (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-[#F5DEB3]">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-[#F5DEB3] p-4">
             <img
               src="/cooper.jpg"
               alt="Cooper"
-              className="w-96 h-96 rounded-full object-cover shadow-lg mb-4 border-4 border-[#8B4513]"
+              className="w-64 h-64 md:w-96 md:h-96 rounded-full object-cover shadow-lg mb-4 border-4 border-[#8B4513]"
             />
-            <h2 className="text-2xl font-bold mb-2 text-[#8B4513]">Cooper</h2>
-            <p className="text-[#8B4513] mb-4">Corvalis Coop has been working days and nights on his thesis. He says it may just be the best sentence central eastern Oregon will ever read. Let's try not to put pressure on him to finish it.
-                </p>
+            <h2 className="text-2xl font-bold mb-4 text-[#8B4513]">Cooper</h2>
+            <p className="text-[#8B4513] mb-32 max-w-prose text-center px-4 md:px-8">
+              Hey there's our guy! Corvalis Coop has been working days and nights on his thesis. He says it may just be the single best sentence central eastern Oregon will ever read. Let's try not to put too much pressure on him to finish it, okay?
+            </p>
           </div>
         )}
 
