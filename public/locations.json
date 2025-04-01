@@ -7,7 +7,7 @@
         -121.36564493179323
       ],
       "name": "HQ",
-      "description": "When in doubt, come back to base. Address: 19110 Gateway Loop Bend, OR 97702 https://maps.app.goo.gl/hzv3BChsGwDzRcWV8",
+      "description": "When in doubt, come back to base. Address: 19110 Gateway Loop Bend, OR 97702",
       "category": "Home",
       "emoji": "🏰"
     },
@@ -18,7 +18,7 @@
         -121.35749101638794
       ],
       "name": "Casa de Steve",
-      "description": "There is a gate, although sometimes it’s open. If closed, you can go around through Tetherow lol.\n\nAddress: 19320 Eaton Ln\nBend, OR 97702",
+      "description": "There is a gate, although sometimes it's open. If closed, you can go around from home base through the Tetherow lot.\n\nAddress: 19320 Eaton Ln\nBend, OR 97702",
       "category": "Home",
       "emoji": "🤓"
     },
@@ -150,7 +150,7 @@
         -121.35581731796266
       ],
       "name": "Sparrow Bakery",
-      "description": "Amazing bakery, has yet to miss. Known for the “Ocean Roll.” Pastries, some sandwiches, worth it. ",
+      "description": "Amazing bakery, has yet to miss. Known for the 'Ocean Roll.' Pastries, some sandwiches, worth it. ",
       "category": "Food",
       "emoji": "🥐"
     },
@@ -272,7 +272,7 @@
         -121.31554126739503
       ],
       "name": "Red Robin Old Mill District",
-      "description": "Cooper’s favorite ",
+      "description": "Cooper's favorite ",
       "category": [
         "Food"
       ],

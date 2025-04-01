@@ -32,7 +32,7 @@ const HotDogParty = () => {
       <button
         onClick={startParty}
         disabled={isPartyTime}
-        className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
+        className="hover:bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-sm flex items-center gap-2"
         title="Hot Dog Party!"
       >
         <span>🌭</span>
@@ -47,7 +47,7 @@ const HotDogParty = () => {
             transform: `scale(${scale}) rotate(${rotation}deg)`,
             animation: 'hotdog 5s ease-out forwards',
             animationDelay: `${delay}s`,
-            fontSize: '3rem'
+            fontSize: '2rem'
           }}
         >
           🌭

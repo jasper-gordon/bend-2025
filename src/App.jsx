@@ -53,12 +53,17 @@ function App() {
   const mapRef = useRef(null);
   const saveTimeoutRef = useRef(null);
 
-  // Load locations from localStorage or JSON file
+  // Load locations from localStorage (for admin) or JSON file (for users)
   useEffect(() => {
     const savedLocations = localStorage.getItem('locations');
-    if (savedLocations) {
+    const isAdminSession = localStorage.getItem('isAdminSession');
+    
+    // If we're in an admin session and have saved locations, use those
+    if (isAdminSession === 'true' && savedLocations) {
       setLocations(JSON.parse(savedLocations));
+      setIsAdmin(true);
     } else {
+      // Otherwise, fetch fresh data
       fetch('/locations.json')
         .then(response => response.json())
         .then(data => setLocations(data.locations))
@@ -66,26 +71,54 @@ function App() {
     }
   }, []);
 
-  // Save locations whenever they change
+  // Handle admin login/logout
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      setIsAdmin(true);
+      setPassword('');
+      localStorage.setItem('isAdminSession', 'true');
+      // When logging in as admin, fetch fresh data to start with
+      fetch('/locations.json')
+        .then(response => response.json())
+        .then(data => setLocations(data.locations))
+        .catch(error => console.error('Error loading locations:', error));
+    } else {
+      alert('Incorrect password');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAdmin(false);
+    setIsEditing(false);
+    setSelectedLocation(null);
+    localStorage.removeItem('isAdminSession');
+    localStorage.removeItem('locations');
+    // When logging out, fetch fresh data
+    fetch('/locations.json')
+      .then(response => response.json())
+      .then(data => setLocations(data.locations))
+      .catch(error => console.error('Error loading locations:', error));
+  };
+
+  // Save locations whenever they change (for admin editing)
   useEffect(() => {
-    if (locations.length > 0) {
+    if (locations.length > 0 && isAdmin) {
       localStorage.setItem('locations', JSON.stringify(locations));
       
       // Show save indicator for admin users
-      if (isAdmin) {
-        setShowSaveIndicator(true);
-        // Clear any existing timeout
-        if (saveTimeoutRef.current) {
-          clearTimeout(saveTimeoutRef.current);
-        }
-        // Hide indicator after 2 seconds
-        saveTimeoutRef.current = setTimeout(() => {
-          setShowSaveIndicator(false);
-        }, 2000);
+      setShowSaveIndicator(true);
+      // Clear any existing timeout
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
       }
+      // Hide indicator after 2 seconds
+      saveTimeoutRef.current = setTimeout(() => {
+        setShowSaveIndicator(false);
+      }, 2000);
       
       // For admin users in production, still offer the JSON download
-      if (isAdmin && process.env.NODE_ENV === 'production') {
+      if (process.env.NODE_ENV === 'production') {
         const dataStr = JSON.stringify({ locations }, null, 2);
         const dataBlob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(dataBlob);
@@ -110,22 +143,6 @@ function App() {
       }
     };
   }, []);
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAdmin(true);
-      setPassword('');
-    } else {
-      alert('Incorrect password');
-    }
-  };
-
-  const handleLogout = () => {
-    setIsAdmin(false);
-    setIsEditing(false);
-    setSelectedLocation(null);
-  };
 
   const createEmojiIcon = (emoji) => {
     return L.divIcon({
@@ -441,12 +458,11 @@ function App() {
     <div className="h-screen w-screen flex flex-col">
       {/* Header */}
       <div className="bg-[#8B4513] shadow-lg p-4 z-[1000] flex justify-between items-center fixed top-0 left-0 right-0">
-        <h1 className="text-4xl font-bold flex-1 text-center text-[#F5DEB3] relative">
-          <span className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CiAgPHBhdGggZD0iTTAgMGg2MHY2MEgweiIgZmlsbD0ibm9uZSIvPgogIDxwYXRoIGQ9Ik0zMCAxNWMtOC4yODQgMC0xNSA2LjcxNi0xNSAxNXM2LjcxNiAxNSAxNSAxNSAxNS02LjcxNiAxNS0xNS02LjcxNi0xNS0xNS0xNXptMCAyOGMtNy4xODMgMC0xMy01LjgxNy0xMy0xM3M1LjgxNy0xMyAxMy0xMyAxMyA1LjgxNyAxMyAxMy01LjgxNyAxMy0xMyAxM3oiIGZpbGw9IiNGNURFQjMiIGZpbGwtb3BhY2l0eT0iMC4yIi8+Cjwvc3ZnPg==')] opacity-20"></span>
-          <span className="relative z-10">Bend 2025</span>
-        </h1>
-        <div className="flex items-center space-x-4 relative z-[1001]">
+        <div className="relative z-10">
           <HotDogParty />
+        </div>
+        <h1 className="text-2xl md:text-3xl font-bold text-[#F5DEB3] absolute left-0 right-0 text-center">Bend 2025</h1>
+        <div className="relative z-10">
           {!isAdmin && (
             <button
               onClick={() => {
