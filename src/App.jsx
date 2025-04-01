@@ -255,6 +255,10 @@ function App() {
                 </button>
               ))}
             </div>
+            <div className="mt-2">
+              <label className="block text-sm font-medium mb-1">Custom Emoji</label>
+              <EmojiInput value={emoji} onChange={setEmoji} />
+            </div>
           </div>
           <div className="flex justify-between">
             <button
@@ -436,9 +440,9 @@ function App() {
   return (
     <div className="h-screen w-screen flex flex-col">
       {/* Header */}
-      <div className="bg-white shadow-lg p-4 z-[1000] flex justify-between items-center fixed top-0 left-0 right-0">
-        <h1 className="text-2xl font-bold flex-1 text-center">Bend 2025</h1>
-        <div className="flex items-center space-x-4">
+      <div className="bg-[#8B4513] shadow-lg p-4 z-[1000] flex justify-between items-center fixed top-0 left-0 right-0">
+        <h1 className="text-2xl font-bold flex-1 text-center text-[#F5DEB3]">Bend 2025</h1>
+        <div className="flex items-center space-x-4 relative z-[1001]">
           <HotDogParty />
           {!isAdmin && (
             <button
@@ -450,11 +454,11 @@ function App() {
                   alert('Incorrect password');
                 }
               }}
-              className="p-2 text-gray-500 hover:text-gray-700 flex items-center gap-2"
+              className="p-2 text-[#F5DEB3] hover:text-white flex items-center gap-2"
               title="Admin Login"
             >
               <FaLock className="text-xl" />
-              <span className="hidden md:inline">Admin Login</span>
+              <span className="hidden md:inline"></span>
             </button>
           )}
           {isAdmin && (
@@ -483,24 +487,24 @@ function App() {
 
       <div className="flex-1 relative mt-16">
         {/* Navigation - Same for both mobile and desktop */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg flex justify-around items-center p-4 z-[1001]">
+        <div className="fixed bottom-0 left-0 right-0 bg-[#8B4513] shadow-lg flex justify-around items-center p-4 z-[1001]">
           <button
             onClick={() => { setView('map'); setIsSidebarOpen(true); }}
-            className={`flex flex-col items-center ${view === 'map' ? 'text-blue-500' : 'text-gray-500'}`}
+            className={`flex flex-col items-center ${view === 'map' ? 'text-[#F5DEB3]' : 'text-[#DEB887]'}`}
           >
             <FaMap className="text-2xl" />
             <span className="text-xs">Map</span>
           </button>
           <button
             onClick={() => { setView('list'); setIsSidebarOpen(false); }}
-            className={`flex flex-col items-center ${view === 'list' ? 'text-blue-500' : 'text-gray-500'}`}
+            className={`flex flex-col items-center ${view === 'list' ? 'text-[#F5DEB3]' : 'text-[#DEB887]'}`}
           >
             <FaList className="text-2xl" />
             <span className="text-xs">List</span>
           </button>
           <button
             onClick={() => setView('cooper')}
-            className={`flex flex-col items-center ${view === 'cooper' ? 'text-blue-500' : 'text-gray-500'}`}
+            className={`flex flex-col items-center ${view === 'cooper' ? 'text-[#F5DEB3]' : 'text-[#DEB887]'}`}
           >
             <FaDog className="text-2xl" />
             <span className="text-xs">Cooper</span>
@@ -511,7 +515,7 @@ function App() {
         {view === 'map' && (
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="absolute top-4 left-4 z-[1001] bg-white p-2 rounded shadow-lg"
+            className="absolute top-4 left-4 z-[1001] bg-[#8B4513] p-2 rounded shadow-lg text-[#F5DEB3]"
           >
             {isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
           </button>
@@ -520,7 +524,7 @@ function App() {
         {/* Sidebar - Only show in map view */}
         {view === 'map' && (
           <div
-            className={`absolute top-0 left-0 h-full bg-white shadow-lg transition-transform duration-300 z-[1000] 
+            className={`absolute top-0 left-0 h-full bg-[#F5DEB3] shadow-lg transition-transform duration-300 z-[1000] 
                        w-full md:w-96 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
           >
             <div className="h-full overflow-y-auto">
@@ -647,19 +651,19 @@ function App() {
         )}
 
         {view === 'cooper' && (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-orange-300">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-[#F5DEB3]">
             <img
               src="/cooper.jpg"
               alt="Cooper"
-              className="w-64 h-64 rounded-full object-cover shadow-lg mb-4"
+              className="w-96 h-96 rounded-full object-cover shadow-lg mb-4 border-4 border-[#8B4513]"
             />
-            <h2 className="text-2xl font-bold mb-2">Cooper</h2>
-            <p className="text-gray-600 mb-4">Corvalis Coop as they say</p>
+            <h2 className="text-2xl font-bold mb-2 text-[#8B4513]">Cooper</h2>
+            <p className="text-[#8B4513] mb-4">Corvalis Coop as they say</p>
           </div>
         )}
 
         {view === 'list' && (
-          <div className="w-full h-full overflow-auto bg-white">
+          <div className="w-full h-full overflow-auto bg-[#F5DEB3]">
             <ListView />
           </div>
         )}
@@ -680,10 +684,75 @@ function App() {
 
       {/* Cooper Party Button - Show in Cooper view for both mobile and desktop */}
       {view === 'cooper' && (
-        <div className="fixed bottom-20 right-4 z-[1001]">
+        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-[1001]">
           <CooperParty />
         </div>
       )}
+
+      {/* Tumbleweed Animation */}
+      <div className="fixed inset-0 pointer-events-none z-[999]">
+        <div className="tumbleweed">🌵</div>
+        <div className="tumbleweed2">🌵</div>
+        <div className="tumbleweed" style={{ animationDelay: `${Math.random() * 10}s` }}>🌵</div>
+        <div className="tumbleweed2" style={{ animationDelay: `${Math.random() * 10}s` }}>🌵</div>
+      </div>
+
+      {/* Add tumbleweed styles */}
+      <style>
+        {`
+          @keyframes tumbleweed {
+            0% {
+              transform: translate(0, 0) rotate(0deg);
+              opacity: 0;
+            }
+            10% {
+              opacity: 1;
+            }
+            90% {
+              opacity: 1;
+            }
+            100% {
+              transform: translate(100vw, 100vh) rotate(360deg);
+              opacity: 0;
+            }
+          }
+
+          @keyframes tumbleweed2 {
+            0% {
+              transform: translate(100vw, 0) rotate(0deg);
+              opacity: 0;
+            }
+            10% {
+              opacity: 1;
+            }
+            90% {
+              opacity: 1;
+            }
+            100% {
+              transform: translate(0, 100vh) rotate(360deg);
+              opacity: 0;
+            }
+          }
+
+          .tumbleweed {
+            position: absolute;
+            font-size: 2rem;
+            animation: tumbleweed 15s linear infinite;
+            animation-delay: ${Math.random() * 10}s;
+            left: -50px;
+            top: ${Math.random() * 100}vh;
+          }
+
+          .tumbleweed2 {
+            position: absolute;
+            font-size: 2rem;
+            animation: tumbleweed2 15s linear infinite;
+            animation-delay: ${Math.random() * 10}s;
+            right: -50px;
+            top: ${Math.random() * 100}vh;
+          }
+        `}
+      </style>
     </div>
   );
 }

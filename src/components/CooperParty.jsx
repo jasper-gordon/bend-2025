@@ -82,7 +82,7 @@ const CooperParty = () => {
       className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
       disabled={isPartyTime}
     >
-      <span>Congratulate Cooper!</span>
+      <span>Pre-Congratulate Cooper!</span>
       <span>🎉</span>
     </button>
   );

@@ -162,7 +162,9 @@
       ],
       "name": "Thump Coffee",
       "description": "Multiple locations in the city, everything is pretty good",
-      "category": "Food",
+      "category": [
+        "Beverages"
+      ],
       "emoji": "☕"
     },
     {
@@ -328,8 +330,141 @@
       ],
       "name": "Smith Rock State Park",
       "description": "Incredible rock climbing with plenty of trails to walk and hike around too. Can go up top or stay on the ground",
-      "category": "Activities",
+      "category": [
+        "Activities"
+      ],
       "emoji": "🧗"
+    },
+    {
+      "id": 1743512002423,
+      "position": [
+        44.048902290166346,
+        -121.33144140243532
+      ],
+      "name": "Cheba Hut",
+      "description": "Denver sandwich chain with a Bend outpost. The closest good sandwich to the house. Reliable. Everything is tasty",
+      "category": [
+        "Food"
+      ],
+      "emoji": "🥪"
+    },
+    {
+      "id": 1743512050273,
+      "position": [
+        44.059997832856865,
+        -121.3127624988556
+      ],
+      "name": "Wild Rose",
+      "description": "Delicious Thai",
+      "category": [
+        "Food"
+      ],
+      "emoji": "🍜"
+    },
+    {
+      "id": 1743512100910,
+      "position": [
+        44.06122368952925,
+        -121.31322383880617
+      ],
+      "name": "Yoli",
+      "description": "Korean food - much more solid than you would expect for Central Oregon",
+      "category": [
+        "Food"
+      ],
+      "emoji": "🍜"
+    },
+    {
+      "id": 1743512162755,
+      "position": [
+        44.04901024847662,
+        -121.32689237594606
+      ],
+      "name": "Bo's Falafel Bar",
+      "description": "Good fries + falafel - huge portions",
+      "category": [
+        "Food"
+      ],
+      "emoji": "🧆"
+    },
+    {
+      "id": 1743512473839,
+      "position": [
+        44.091245396537225,
+        -121.29377245903017
+      ],
+      "name": "Manzanita Grill",
+      "description": "Get the Deschutes Philly and be happy forever. Best food truck in Bend. ",
+      "category": [
+        "Food"
+      ],
+      "emoji": "🥪"
+    },
+    {
+      "id": 1743512522006,
+      "position": [
+        44.05635095194073,
+        -121.32760047912599
+      ],
+      "name": "Sunriver Brewing",
+      "description": "Surprisingly good beer (better than Boss Rambler) but pretty average food",
+      "category": [
+        "Food",
+        "Beverages"
+      ],
+      "emoji": "🍺"
+    },
+    {
+      "id": 1743512595152,
+      "position": [
+        44.046002764794885,
+        -121.2918519973755
+      ],
+      "name": "Bevel Brewing",
+      "description": "Frisbee themed spot! Lots of food trucks! Great vibes",
+      "category": [
+        "Food"
+      ],
+      "emoji": "🍺🍔"
+    },
+    {
+      "id": 1743512645301,
+      "position": [
+        44.02442151965934,
+        -121.37051582336427
+      ],
+      "name": "Running Trails!",
+      "description": "Well-maintained, well-marked, you can go as long as you want. Great escape",
+      "category": [
+        "Food"
+      ],
+      "emoji": "🏃‍♂️‍➡️"
+    },
+    {
+      "id": 1743512829159,
+      "position": [
+        44.08565842763053,
+        -121.30408287048341
+      ],
+      "name": "Winco",
+      "description": "For all cheap bulk candy, treats, grains, snacks, meats, and everything else. No credit cards but debit and cash :)",
+      "category": [
+        "Food"
+      ],
+      "emoji": "🍬"
+    },
+    {
+      "id": 1743512930809,
+      "position": [
+        44.25479000356215,
+        -121.15173339843751
+      ],
+      "name": "Airport",
+      "description": "",
+      "category": [
+        "Activities"
+      ],
+      "emoji": "✈️"
     }
   ]
 }
