@@ -318,8 +318,10 @@
         -121.6824245452881
       ],
       "name": "Mt Bachelor",
-      "description": "",
-      "category": "Activities",
+      "description": "About 30 min drive from the house, parking is free. ",
+      "category": [
+        "Activities"
+      ],
       "emoji": "⛷️"
     },
     {
@@ -436,7 +438,7 @@
       "name": "Running Trails!",
       "description": "Well-maintained, well-marked, you can go as long as you want. Great escape",
       "category": [
-        "Food"
+        "Activities"
       ],
       "emoji": "🏃‍♂️‍➡️"
     },
@@ -465,6 +467,20 @@
         "Activities"
       ],
       "emoji": "✈️"
+    },
+    {
+      "id": 1743514702926,
+      "position": [
+        44.055271493790386,
+        -121.28228187561037
+      ],
+      "name": "Lava Lanes",
+      "description": "All interested bowlers are encouraged to seek out Whitney",
+      "category": [
+        "Food",
+        "Activities"
+      ],
+      "emoji": "🎳"
     }
   ]
 }

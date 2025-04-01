@@ -441,7 +441,10 @@ function App() {
     <div className="h-screen w-screen flex flex-col">
       {/* Header */}
       <div className="bg-[#8B4513] shadow-lg p-4 z-[1000] flex justify-between items-center fixed top-0 left-0 right-0">
-        <h1 className="text-2xl font-bold flex-1 text-center text-[#F5DEB3]">Bend 2025</h1>
+        <h1 className="text-4xl font-bold flex-1 text-center text-[#F5DEB3] relative">
+          <span className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CiAgPHBhdGggZD0iTTAgMGg2MHY2MEgweiIgZmlsbD0ibm9uZSIvPgogIDxwYXRoIGQ9Ik0zMCAxNWMtOC4yODQgMC0xNSA2LjcxNi0xNSAxNXM2LjcxNiAxNSAxNSAxNSAxNS02LjcxNiAxNS0xNS02LjcxNi0xNS0xNS0xNXptMCAyOGMtNy4xODMgMC0xMy01LjgxNy0xMy0xM3M1LjgxNy0xMyAxMy0xMyAxMyA1LjgxNyAxMyAxMy01LjgxNyAxMy0xMyAxM3oiIGZpbGw9IiNGNURFQjMiIGZpbGwtb3BhY2l0eT0iMC4yIi8+Cjwvc3ZnPg==')] opacity-20"></span>
+          <span className="relative z-10">Bend 2025</span>
+        </h1>
         <div className="flex items-center space-x-4 relative z-[1001]">
           <HotDogParty />
           {!isAdmin && (
@@ -488,13 +491,7 @@ function App() {
       <div className="flex-1 relative mt-16">
         {/* Navigation - Same for both mobile and desktop */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#8B4513] shadow-lg flex justify-around items-center p-4 z-[1001]">
-          <button
-            onClick={() => { setView('map'); setIsSidebarOpen(true); }}
-            className={`flex flex-col items-center ${view === 'map' ? 'text-[#F5DEB3]' : 'text-[#DEB887]'}`}
-          >
-            <FaMap className="text-2xl" />
-            <span className="text-xs">Map</span>
-          </button>
+          
           <button
             onClick={() => { setView('list'); setIsSidebarOpen(false); }}
             className={`flex flex-col items-center ${view === 'list' ? 'text-[#F5DEB3]' : 'text-[#DEB887]'}`}
@@ -502,6 +499,15 @@ function App() {
             <FaList className="text-2xl" />
             <span className="text-xs">List</span>
           </button>
+
+          <button
+            onClick={() => { setView('map'); setIsSidebarOpen(true); }}
+            className={`flex flex-col items-center ${view === 'map' ? 'text-[#F5DEB3]' : 'text-[#DEB887]'}`}
+          >
+            <FaMap className="text-2xl" />
+            <span className="text-xs">Map</span>
+          </button>
+
           <button
             onClick={() => setView('cooper')}
             className={`flex flex-col items-center ${view === 'cooper' ? 'text-[#F5DEB3]' : 'text-[#DEB887]'}`}
@@ -603,7 +609,16 @@ function App() {
             zoom={INITIAL_ZOOM}
             className="w-full h-full"
             ref={mapRef}
+            zoomControl={false}
           >
+            <div className="leaflet-control-container">
+              <div className="leaflet-right">
+                <div className="leaflet-control-zoom leaflet-bar leaflet-control">
+                  <a className="leaflet-control-zoom-in" href="#" title="Zoom in">+</a>
+                  <a className="leaflet-control-zoom-out" href="#" title="Zoom out">−</a>
+                </div>
+              </div>
+            </div>
             <TileLayer {...MAP_STYLES[mapStyle]} />
             {filteredLocations.map(location => (
               <Marker
@@ -658,7 +673,8 @@ function App() {
               className="w-96 h-96 rounded-full object-cover shadow-lg mb-4 border-4 border-[#8B4513]"
             />
             <h2 className="text-2xl font-bold mb-2 text-[#8B4513]">Cooper</h2>
-            <p className="text-[#8B4513] mb-4">Corvalis Coop as they say</p>
+            <p className="text-[#8B4513] mb-4">Corvalis Coop has been working days and nights on his thesis. He says it may just be the best sentence central eastern Oregon will ever read. Let's try not to put pressure on him to finish it.
+                </p>
           </div>
         )}
 
