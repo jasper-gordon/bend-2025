@@ -461,7 +461,7 @@ function App() {
         <div className="relative z-10">
           <HotDogParty />
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-[#F5DEB3] absolute left-0 right-0 text-center">Bend 2025</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-[#F5DEB3] absolute left-0 right-0 text-center">Welcome to Bend 2025!</h1>
         <div className="relative z-10">
           {!isAdmin && (
             <button
@@ -690,7 +690,7 @@ function App() {
             />
             <h2 className="text-2xl font-bold mb-4 text-[#8B4513]">Cooper</h2>
             <p className="text-[#8B4513] mb-32 max-w-prose text-center px-4 md:px-8">
-              Hey there's our guy! Corvalis Coop has been working days and nights on his thesis. He says it may just be the single best sentence central eastern Oregon will ever read. Let's try not to put too much pressure on him to finish it, okay?
+              Hey there's our guy! Corvalis Coop has been working day and night on his thesis. He says—and we're quoting here—"it may just be the single best sentence Central Eastern Oregon will ever read." Let's try not to put too much pressure on him to finish it, okay?
             </p>
           </div>
         )}
