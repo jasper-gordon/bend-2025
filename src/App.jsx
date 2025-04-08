@@ -617,7 +617,7 @@ function App() {
                 alt="Cooper" 
                 className="w-64 h-64 object-cover rounded-full mx-auto mb-8 shadow-xl"
               />
-              <h2 className="text-4xl font-bold text-[#F4EAD5] mb-4">Cooper's Thesis</h2>
+              <h2 className="text-4xl font-bold text-[#F4EAD5] mb-4">Cooper</h2>
               <p className="text-xl text-[#F4EAD5]">
                 Corvalis Coop has been working day and night on his thesis. Something about the "single greatest, most literate sentence Central Eastern Oregon will ever read?" I'm not sure what that means, but it sounds good so let's try not to put exta pressure on him to finish it, okay? Like can you imagine if we built a whole thing to shine a spotlight on him, he would probably hate that. All the attention, the questions, the staring in admiration of his god-like mastering of word and sentences and knowing when to use ––the little funny aside thingy–– without it seeming like AI wrote your resume. Yeah, that would be bad...
               </p>
