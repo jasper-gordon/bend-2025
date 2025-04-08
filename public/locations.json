@@ -6,7 +6,7 @@
         44.02378121258474,
         -121.36564493179323
       ],
-      "name": "HQ",
+      "name": "HQ / South Fork 1",
       "description": "When in doubt, come back to base. Address: 19110 Gateway Loop Bend, OR 97702",
       "category": "Home",
       "emoji": "🏰"
@@ -230,7 +230,7 @@
         -121.30785942077638
       ],
       "name": "Crux Fermentation Project",
-      "description": "Feels like a brewery that only locals go to. Lots of seating inside and out, solid food as well.",
+      "description": "Feels like a brewery that only locals go to. Lots of seating inside and out. Has food although Henry notes it's fine, nothing more. Great vibe spot tho.",
       "category": [
         "Beverages",
         "Food"
@@ -490,6 +490,85 @@
         "Beverages"
       ],
       "emoji": "🍸"
+    },
+    {
+      "id": 1743889766752,
+      "position": [
+        44.057021748163386,
+        -121.32853388786316
+      ],
+      "name": "El Sancho Taco Shop",
+      "description": "Solid",
+      "category": [
+        "Food"
+      ],
+      "emoji": "🌮"
+    },
+    {
+      "id": 1743889840376,
+      "position": [
+        44.03970968956248,
+        -121.33678436279298
+      ],
+      "name": "Lifty's",
+      "description": "Simply the closest bar to the house. There when you need it.",
+      "category": [
+        "Beverages"
+      ],
+      "emoji": "🍺"
+    },
+    {
+      "id": 1743889957158,
+      "position": [
+        44.04334217117279,
+        -121.32041215896608
+      ],
+      "name": "Gather – Portable Sauna",
+      "description": "Haven't done it before but if you want to sauna followed by a cold dip in the river, well, someone should try this :)",
+      "category": [
+        "Activities"
+      ],
+      "emoji": "🛁🔥"
+    },
+    {
+      "id": 1743890257277,
+      "position": [
+        44.060529811511266,
+        -121.31384611129762
+      ],
+      "name": "Bend Brewing Co",
+      "description": "Everyone ends up at Bend Brewing eventually. Sometimes they have live music. ",
+      "category": [
+        "Beverages"
+      ],
+      "emoji": "🍺"
+    },
+    {
+      "id": 1744055068595,
+      "position": [
+        44.273759875132875,
+        -121.1729657649994
+      ],
+      "name": "Wild Ride Brewing",
+      "description": "Great brewery next to lots of tasty food trucks. Music, outdoor seating with fire pits, and games, a great place to hang out.",
+      "category": [
+        "Food",
+        "Beverages"
+      ],
+      "emoji": "🍺🌮"
+    },
+    {
+      "id": 1744055251884,
+      "position": [
+        44.28685619297868,
+        -121.17431759834291
+      ],
+      "name": "Sno-Cap Drive-In",
+      "description": "Adorable, nostalgic roadside drive-in with food and delicious local ice cream. Perfect coming back from Smith Rock or any warm day.",
+      "category": [
+        "Food"
+      ],
+      "emoji": "🍦"
     }
   ]
 }

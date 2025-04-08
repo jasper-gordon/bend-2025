@@ -29,14 +29,14 @@ const HotDogParty = () => {
 
   return (
     <>
-      <button
-        onClick={startParty}
-        disabled={isPartyTime}
-        className="hover:bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-sm flex items-center gap-2"
-        title="Hot Dog Party!"
-      >
-        <span>🌭</span>
-      </button>
+     <button
+  onClick={startParty}
+  disabled={isPartyTime}
+  className="hover:bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-sm flex items-center gap-2"
+  title="Hot Dog Party!"
+>
+  <span className="text-3xl">🌭</span>
+</button>
       {hotdogs.map(({ id, left, top, scale, rotation, delay }) => (
         <div
           key={id}

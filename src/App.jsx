@@ -1,3 +1,9 @@
+/**
+ * @file App.jsx
+ * @description Main application component for the Bend Travel Guide. Handles map display,
+ * location management, and user interactions.
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -6,9 +12,25 @@ import { FaChevronLeft, FaChevronRight, FaSearch, FaLock, FaUnlock, FaMap, FaLis
 import HotDogParty from './components/HotDogParty';
 import CooperParty from './components/CooperParty';
 
-const INITIAL_CENTER = [44.0582, -121.3153]; // Bend, OR coordinates
+/**
+ * @constant {Array} INITIAL_CENTER
+ * @description Default map center coordinates for Bend, Oregon
+ */
+const INITIAL_CENTER = [44.0582, -121.3153];
+
+/**
+ * @constant {number} INITIAL_ZOOM
+ * @description Initial zoom level for the map
+ */
 const INITIAL_ZOOM = 13;
 
+/**
+ * @constant {Object} MAP_STYLES
+ * @description Different map style configurations for the application
+ * @property {Object} minimal - Minimal map style with no labels
+ * @property {Object} light - Light map style with labels
+ * @property {Object} detailed - Detailed map style with more information
+ */
 const MAP_STYLES = {
   minimal: {
     url: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',
@@ -24,9 +46,20 @@ const MAP_STYLES = {
   }
 };
 
+/**
+ * @constant {Array} CATEGORIES
+ * @description Available categories for location classification
+ */
 const CATEGORIES = ['Food', 'Beverages', 'Activities', 'Home'];
 
-// Common emojis for different categories (suggestions only)
+/**
+ * @constant {Object} CATEGORY_EMOJIS
+ * @description Emoji mappings for different location categories
+ * @property {Array} Food - Food-related emojis
+ * @property {Array} Beverages - Beverage-related emojis
+ * @property {Array} Activities - Activity-related emojis
+ * @property {Array} Home - Home-related emojis
+ */
 const CATEGORY_EMOJIS = {
   Food: ['🍽️', '🍕', '🍜', '🍣', '🥗', '🥪', '🍰', '🍦'],
   Beverages: ['🍺', '🍷', '🍸', '🍹', '🥂', '🍻', '🥃'],
@@ -34,14 +67,36 @@ const CATEGORY_EMOJIS = {
   Home: ['🏠', '🏡', '🏘️', '🏚️', '🏛️', '🏰']
 };
 
-// This would be replaced with an environment variable in production
+/**
+ * @constant {string} ADMIN_PASSWORD
+ * @description Password for admin access (should be moved to environment variables in production)
+ */
 const ADMIN_PASSWORD = 'strongjasper';
 
+/**
+ * @function App
+ * @description Main application component
+ * @returns {JSX.Element} The rendered application
+ */
 function App() {
+  /**
+   * @state {Array} locations - List of locations to display on the map
+   * @state {Object|null} selectedLocation - Currently selected location
+   * @state {boolean} isEditing - Whether a location is being edited
+   * @state {boolean} isSidebarOpen - Whether the sidebar is open
+   * @state {string} searchTerm - Current search term for filtering locations
+   * @state {Set} selectedCategories - Set of selected category filters
+   * @state {string} mapStyle - Current map style
+   * @state {boolean} isAdmin - Whether the user is logged in as admin
+   * @state {string} password - Admin password input
+   * @state {string} view - Current view ('map', 'list', or 'cooper')
+   * @state {string} customEmoji - Custom emoji for location markers
+   * @state {boolean} showSaveIndicator - Whether to show the save indicator
+   */
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Start closed
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState(new Set());
   const [mapStyle, setMapStyle] = useState('detailed');
@@ -50,20 +105,26 @@ function App() {
   const [view, setView] = useState('map'); // 'map' or 'list' or 'cooper'
   const [customEmoji, setCustomEmoji] = useState('📍');
   const [showSaveIndicator, setShowSaveIndicator] = useState(false);
+
+  /**
+   * @ref {Object} mapRef - Reference to the map instance
+   * @ref {Object} saveTimeoutRef - Reference to the save indicator timeout
+   */
   const mapRef = useRef(null);
   const saveTimeoutRef = useRef(null);
 
-  // Load locations from localStorage (for admin) or JSON file (for users)
+  /**
+   * @effect
+   * @description Loads locations from localStorage or JSON file on component mount
+   */
   useEffect(() => {
     const savedLocations = localStorage.getItem('locations');
     const isAdminSession = localStorage.getItem('isAdminSession');
     
-    // If we're in an admin session and have saved locations, use those
     if (isAdminSession === 'true' && savedLocations) {
       setLocations(JSON.parse(savedLocations));
       setIsAdmin(true);
     } else {
-      // Otherwise, fetch fresh data
       fetch('/locations.json')
         .then(response => response.json())
         .then(data => setLocations(data.locations))
@@ -71,14 +132,17 @@ function App() {
     }
   }, []);
 
-  // Handle admin login/logout
+  /**
+   * @function handleLogin
+   * @description Handles admin login
+   * @param {Event} e - Form submission event
+   */
   const handleLogin = (e) => {
     e.preventDefault();
     if (password === ADMIN_PASSWORD) {
       setIsAdmin(true);
       setPassword('');
       localStorage.setItem('isAdminSession', 'true');
-      // When logging in as admin, fetch fresh data to start with
       fetch('/locations.json')
         .then(response => response.json())
         .then(data => setLocations(data.locations))
@@ -88,6 +152,10 @@ function App() {
     }
   };
 
+  /**
+   * @function handleLogout
+   * @description Handles admin logout
+   */
   const handleLogout = () => {
     setIsAdmin(false);
     setIsEditing(false);
@@ -101,23 +169,22 @@ function App() {
       .catch(error => console.error('Error loading locations:', error));
   };
 
-  // Save locations whenever they change (for admin editing)
+  /**
+   * @effect
+   * @description Saves locations to localStorage when they change (admin only)
+   */
   useEffect(() => {
     if (locations.length > 0 && isAdmin) {
       localStorage.setItem('locations', JSON.stringify(locations));
       
-      // Show save indicator for admin users
       setShowSaveIndicator(true);
-      // Clear any existing timeout
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
-      // Hide indicator after 2 seconds
       saveTimeoutRef.current = setTimeout(() => {
         setShowSaveIndicator(false);
       }, 2000);
       
-      // For admin users in production, still offer the JSON download
       if (process.env.NODE_ENV === 'production') {
         const dataStr = JSON.stringify({ locations }, null, 2);
         const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -135,7 +202,10 @@ function App() {
     }
   }, [locations, isAdmin]);
 
-  // Cleanup timeout on unmount
+  /**
+   * @effect
+   * @description Cleans up timeout on component unmount
+   */
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
@@ -144,6 +214,12 @@ function App() {
     };
   }, []);
 
+  /**
+   * @function createEmojiIcon
+   * @description Creates a custom emoji icon for map markers
+   * @param {string} emoji - The emoji to use for the marker
+   * @returns {L.DivIcon} A Leaflet div icon
+   */
   const createEmojiIcon = (emoji) => {
     return L.divIcon({
       html: `<div class="emoji-marker" style="display: inline-flex; gap: 4px; white-space: nowrap;">${Array.isArray(emoji) ? emoji.join('') : emoji}</div>`,
@@ -154,6 +230,11 @@ function App() {
     });
   };
 
+  /**
+   * @function handleMapClick
+   * @description Handles map click events for adding new locations (admin only)
+   * @param {Object} e - Leaflet map click event
+   */
   const handleMapClick = (e) => {
     if (!isEditing && isAdmin) {
       const newLocation = {
@@ -170,6 +251,11 @@ function App() {
     }
   };
 
+  /**
+   * @function handleLocationUpdate
+   * @description Updates a location's information
+   * @param {Object} updatedLocation - The updated location object
+   */
   const handleLocationUpdate = (updatedLocation) => {
     setLocations(locations.map(loc => 
       loc.id === updatedLocation.id ? updatedLocation : loc
@@ -178,12 +264,21 @@ function App() {
     setIsEditing(false);
   };
 
+  /**
+   * @function handleLocationDelete
+   * @description Deletes a location
+   * @param {number} id - The ID of the location to delete
+   */
   const handleLocationDelete = (id) => {
     setLocations(locations.filter(loc => loc.id !== id));
     setSelectedLocation(null);
     setIsEditing(false);
   };
 
+  /**
+   * @constant {Array} filteredLocations
+   * @description Filtered list of locations based on search term and selected categories
+   */
   const filteredLocations = locations.filter(location => {
     const matchesSearch = location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          location.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -455,257 +550,361 @@ function App() {
   }, []);
 
   return (
-    <div className="h-screen w-screen flex flex-col">
-      {/* Header */}
-      <div className="bg-[#8B4513] shadow-lg p-4 z-[1000] flex justify-between items-center fixed top-0 left-0 right-0">
+    <div className="relative h-screen">
+      <header className="bg-[#2ca5b8] shadow-lg py-2 px-4 z-[1000] flex justify-between items-center fixed top-0 left-0 right-0">
         <div className="relative z-10">
           <HotDogParty />
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-[#F5DEB3] absolute left-0 right-0 text-center">Welcome to Bend 2025!</h1>
-        <div className="relative z-10">
-          {!isAdmin && (
+        <h1 className="text-2xl md:text-5xl font-bold absolute left-0 right-0 text-center">
+          <span className="text-[#F4EAD5] [text-shadow:_-3px_-2px_0_#ab5c95,_1px_-1px_0_#ab5c95,_-1px_1px_0_#ab5c95,_1px_1px_0_#ab5c95]">Bend 2025</span>
+        </h1>
+        <div className="flex items-center space-x-2">
+          {isAdmin ? (
+            <>
+              <button
+                onClick={() => {
+                  const dataStr = JSON.stringify({ locations }, null, 2);
+                  const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                  const url = URL.createObjectURL(dataBlob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = 'locations.json';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  URL.revokeObjectURL(url);
+                }}
+                className="bg-[#6B4984] hover:bg-[#8FD6E1] text-[#F4EAD5] px-3 py-1.5 rounded transition-colors"
+              >
+                Export
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-[#FF6B6B] hover:bg-[#FF8E8E] text-[#F4EAD5] px-3 py-1.5 rounded transition-colors"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
             <button
               onClick={() => {
                 const password = prompt('Enter admin password:');
                 if (password === ADMIN_PASSWORD) {
                   setIsAdmin(true);
-                } else if (password !== null) {
+                  localStorage.setItem('isAdminSession', 'true');
+                  fetch('/locations.json')
+                    .then(response => response.json())
+                    .then(data => setLocations(data.locations))
+                    .catch(error => console.error('Error loading locations:', error));
+                } else if (password) {
                   alert('Incorrect password');
                 }
               }}
-              className="p-2 text-[#F5DEB3] hover:text-white flex items-center gap-2"
-              title="Admin Login"
+              className="fixed top-4 right-4 p-2 bg-[#2ca5b8] text-[#F4EAD5] rounded-full hover:bg-[#6B4984] transition-colors"
             >
-              <FaLock className="text-xl" />
-              <span className="hidden md:inline"></span>
+              <FaLock />
             </button>
           )}
-          {isAdmin && (
-            <div className="flex items-center space-x-4">
-              <span className="text-green-300 flex items-center gap-1">
-                <FaUnlock /> Admin
-              </span>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={handleExportLocations}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow"
-                >
-                  Export Locations
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          )}
         </div>
-      </div>
+      </header>
 
-      <div className="flex-1 relative mt-16">
-        {/* Navigation - Same for both mobile and desktop */}
-        <div className="fixed bottom-0 left-0 right-0 bg-[#8B4513] shadow-lg flex justify-around items-center p-4 z-[1001]">
-          
-          <button
-            onClick={() => { setView('list'); setIsSidebarOpen(false); }}
-            className={`flex flex-col items-center ${view === 'list' ? 'text-[#F5DEB3]' : 'text-[#DEB887]'}`}
-          >
-            <FaList className="text-2xl" />
-            <span className="text-xs">List</span>
-          </button>
-
-          <button
-            onClick={() => { setView('map'); setIsSidebarOpen(true); }}
-            className={`flex flex-col items-center ${view === 'map' ? 'text-[#F5DEB3]' : 'text-[#DEB887]'}`}
-          >
-            <FaMap className="text-2xl" />
-            <span className="text-xs">Map</span>
-          </button>
-
-          <button
-            onClick={() => setView('cooper')}
-            className={`flex flex-col items-center ${view === 'cooper' ? 'text-[#F5DEB3]' : 'text-[#DEB887]'}`}
-          >
-            <FaDog className="text-2xl" />
-            <span className="text-xs">Cooper</span>
-          </button>
-        </div>
-
-        {/* Toggle Sidebar Button - Only show in map view */}
-        {view === 'map' && (
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="absolute top-4 left-4 z-[1001] bg-[#8B4513] p-2 rounded shadow-lg text-[#F5DEB3]"
-          >
-            {isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
-          </button>
-        )}
-
-        {/* Sidebar - Only show in map view */}
-        {view === 'map' && (
-          <div
-            className={`absolute top-0 left-0 h-full bg-[#F5DEB3] shadow-lg transition-transform duration-300 z-[1000] 
-                       w-full md:w-96 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
-          >
-            <div className="h-full overflow-y-auto">
-              <div className="p-4">
-                <div className="mb-4">
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search locations..."
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <h3 className="font-semibold mb-2">Categories</h3>
-                  <div className="space-y-2">
-                    {CATEGORIES.map(category => (
-                      <label key={category} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedCategories.has(category)}
-                          onChange={() => {
-                            const newCategories = new Set(selectedCategories);
-                            if (newCategories.has(category)) {
-                              newCategories.delete(category);
-                            } else {
-                              newCategories.add(category);
-                            }
-                            setSelectedCategories(newCategories);
-                          }}
-                          className="form-checkbox h-4 w-4 text-blue-500"
-                        />
-                        <span>{category}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {filteredLocations.map(location => (
-                    <div
-                      key={location.id}
-                      className="p-3 bg-gray-50 rounded cursor-pointer hover:bg-gray-100"
-                      onClick={() => {
-                        setSelectedLocation(location);
-                        if (mapRef.current) {
-                          mapRef.current.setView(location.position, INITIAL_ZOOM);
-                        }
-                      }}
-                    >
-                      <div className="font-bold flex items-center gap-1">
-                        <span className="inline-flex gap-1">
-                          {Array.isArray(location.emoji) ? location.emoji.join(' ') : location.emoji}
-                        </span>
-                        {location.name}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {Array.isArray(location.category) ? location.category.join(', ') : location.category}
-                      </div>
-                      <div className="text-sm text-gray-600 truncate">
-                        {location.description}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+      <main className="pt-16 h-full">
+        {view === 'cooper' ? (
+          <div className="w-full h-full flex flex-col items-center justify-start bg-gradient-to-br from-[#2A4858] via-[#6B4984] to-[#2A4858] pt-32 pb-64 overflow-auto">
+            <div className="max-w-4xl mx-auto p-8 text-center">
+              <img 
+                src="/cooper.jpg" 
+                alt="Cooper" 
+                className="w-64 h-64 object-cover rounded-full mx-auto mb-8 shadow-xl"
+              />
+              <h2 className="text-4xl font-bold text-[#F4EAD5] mb-4">Cooper's Thesis</h2>
+              <p className="text-xl text-[#F4EAD5]">
+                Corvalis Coop has been working day and night on his thesis. Something about the "single greatest, most literate sentence Central Eastern Oregon will ever read?" I'm not sure what that means, but it sounds good so let's try not to put exta pressure on him to finish it, okay? Like can you imagine if we built a whole thing to shine a spotlight on him, he would probably hate that. All the attention, the questions, the staring in admiration of his god-like mastering of word and sentences and knowing when to use ––the little funny aside thingy–– without it seeming like AI wrote your resume. Yeah, that would be bad...
+              </p>
             </div>
           </div>
-        )}
-
-        {/* Main Content */}
-        {view === 'map' && (
-          <MapContainer
-            center={INITIAL_CENTER}
-            zoom={INITIAL_ZOOM}
-            className="w-full h-full"
-            ref={mapRef}
-            zoomControl={false}
-          >
-            <div className="leaflet-control-container">
-              <div className="leaflet-right">
-                <div className="leaflet-control-zoom leaflet-bar leaflet-control">
-                  <a className="leaflet-control-zoom-in" href="#" title="Zoom in">+</a>
-                  <a className="leaflet-control-zoom-out" href="#" title="Zoom out">−</a>
+        ) : view === 'list' ? (
+          <div className="w-full h-full overflow-auto bg-gradient-to-br from-[#2A4858] via-[#6B4984] to-[#2A4858] p-4">
+            <div className="max-w-4xl mx-auto space-y-4">
+              {/* Filter Bubbles */}
+              <div className="flex justify-center gap-2 p-4">
+                {/* Search Bubble */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      const existingInput = document.querySelector('.search-input');
+                      if (existingInput) {
+                        existingInput.remove();
+                        setSearchTerm('');
+                      } else {
+                        const searchInput = document.createElement('input');
+                        searchInput.type = 'text';
+                        searchInput.placeholder = 'Search locations...';
+                        searchInput.className = 'px-4 py-2 rounded-full transition-colors bg-white text-[#2A4858] focus:outline-none focus:ring-2 focus:ring-[#2ca5b8]';
+                        searchInput.style.width = '200px';
+                        
+                        searchInput.classList.add('search-input');
+                        searchInput.value = searchTerm;
+                        searchInput.addEventListener('input', (e) => {
+                          setSearchTerm(e.target.value);
+                        });
+                        
+                        const searchButton = document.querySelector('.search-bubble');
+                        searchButton.parentNode.insertBefore(searchInput, searchButton.nextSibling);
+                      }
+                    }}
+                    className="search-bubble px-4 py-2 rounded-full transition-colors bg-white text-[#2A4858] hover:bg-gray-100"
+                  >
+                    <FaSearch />
+                  </button>
                 </div>
+                
+                {CATEGORIES.map(category => (
+                  <button
+                    key={category}
+                    onClick={() => {
+                      const newCategories = new Set(selectedCategories);
+                      if (newCategories.has(category)) {
+                        newCategories.delete(category);
+                      } else {
+                        newCategories.add(category);
+                      }
+                      setSelectedCategories(newCategories);
+                    }}
+                    className={`px-4 py-2 rounded-full transition-colors ${
+                      selectedCategories.has(category)
+                        ? 'bg-[#2ca5b8] text-[#F4EAD5]'
+                        : 'bg-white text-[#2A4858] hover:bg-gray-100'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
               </div>
-            </div>
-            <TileLayer {...MAP_STYLES[mapStyle]} />
-            {filteredLocations.map(location => (
-              <Marker
-                key={location.id}
-                position={location.position}
-                icon={createEmojiIcon(Array.isArray(location.emoji) ? location.emoji[0] : location.emoji)}
-                eventHandlers={{
-                  click: () => {
-                    setSelectedLocation(location);
-                    setIsEditing(false);
-                  }
-                }}
-              >
-                <Popup>
-                  <div className="p-4">
-                    <div className="font-bold flex items-center gap-1 mb-2">
-                      <span className="inline-flex gap-1">
-                        {Array.isArray(location.emoji) ? location.emoji.join(' ') : location.emoji}
+              
+              {filteredLocations.map(location => (
+                <div key={location.id} className="bg-[#F4EAD5] rounded-lg p-4 shadow-lg">
+                  <h3 className="text-[#2A4858] font-bold text-lg mb-2">{location.name}</h3>
+                  <p className="text-[#2A4858] mb-2">{location.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {Array.isArray(location.category) ? (
+                      location.category.map(cat => (
+                        <span key={cat} className="bg-[#8FD6E1] text-[#2ca5b8] px-2 py-1 rounded-full text-sm">
+                          {cat}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="bg-[#8FD6E1] text-[#2ca5b8] px-2 py-1 rounded-full text-sm">
+                        {location.category}
                       </span>
-                      {location.name}
-                    </div>
-                    <div className="mb-2">{location.description}</div>
-                    {isAdmin && (
-                      <div className="mt-2">
-                        <button
-                          onClick={() => setIsEditing(true)}
-                          className="px-2 py-1 bg-blue-500 text-white rounded text-sm"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleLocationDelete(location.id)}
-                          className="px-2 py-1 bg-red-500 text-white rounded text-sm ml-2"
-                        >
-                          Delete
-                        </button>
-                      </div>
                     )}
                   </div>
-                </Popup>
-              </Marker>
-            ))}
-            {isAdmin && <MapEvents />}
-          </MapContainer>
-        )}
-
-        {view === 'cooper' && (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-[#F5DEB3] p-4">
-            <img
-              src="/cooper.jpg"
-              alt="Cooper"
-              className="w-64 h-64 md:w-96 md:h-96 rounded-full object-cover shadow-lg mb-4 border-4 border-[#8B4513]"
-            />
-            <h2 className="text-2xl font-bold mb-4 text-[#8B4513]">Cooper</h2>
-            <p className="text-[#8B4513] mb-32 max-w-prose text-center px-4 md:px-8">
-              Hey there's our guy! Corvalis Coop has been working day and night on his thesis. He says—and we're quoting here—"it may just be the single best sentence Central Eastern Oregon will ever read." Let's try not to put too much pressure on him to finish it, okay?
-            </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="w-full h-full">
+            {/* Filter Bubbles */}
+            <div className="absolute top-20 left-0 right-0 flex justify-center gap-2 p-4 z-[1000]">
+              {/* Search Bubble */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    const existingInput = document.querySelector('.search-input');
+                    if (existingInput) {
+                      existingInput.remove();
+                      setSearchTerm('');
+                    } else {
+                      const searchInput = document.createElement('input');
+                      searchInput.type = 'text';
+                      searchInput.placeholder = 'Search locations...';
+                      searchInput.className = 'px-4 py-2 rounded-full transition-colors bg-white text-[#2A4858] focus:outline-none focus:ring-2 focus:ring-[#2ca5b8]';
+                      searchInput.style.width = '200px';
+                      
+                      searchInput.classList.add('search-input');
+                      searchInput.value = searchTerm;
+                      searchInput.addEventListener('input', (e) => {
+                        setSearchTerm(e.target.value);
+                      });
+                      
+                      const searchButton = document.querySelector('.search-bubble');
+                      searchButton.parentNode.insertBefore(searchInput, searchButton.nextSibling);
+                    }
+                  }}
+                  className="search-bubble px-4 py-2 rounded-full transition-colors bg-white text-[#2A4858] hover:bg-gray-100"
+                >
+                  <FaSearch />
+                </button>
+              </div>
+              
+              {CATEGORIES.map(category => (
+                <button
+                  key={category}
+                  onClick={() => {
+                    const newCategories = new Set(selectedCategories);
+                    if (newCategories.has(category)) {
+                      newCategories.delete(category);
+                    } else {
+                      newCategories.add(category);
+                    }
+                    setSelectedCategories(newCategories);
+                  }}
+                  className={`px-4 py-2 rounded-full transition-colors ${
+                    selectedCategories.has(category)
+                      ? 'bg-[#2ca5b8] text-[#F4EAD5]'
+                      : 'bg-white text-[#2A4858] hover:bg-gray-100'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+            <MapContainer
+              center={INITIAL_CENTER}
+              zoom={INITIAL_ZOOM}
+              style={{ height: '100%', width: '100%' }}
+              ref={mapRef}
+            >
+              <TileLayer
+                url={MAP_STYLES[mapStyle].url}
+                attribution={MAP_STYLES[mapStyle].attribution}
+              />
+              {filteredLocations.map(location => (
+                <Marker
+                  key={location.id}
+                  position={location.position}
+                  icon={createEmojiIcon(location.emoji)}
+                  eventHandlers={{
+                    click: () => setSelectedLocation(location)
+                  }}
+                >
+                  <Popup>
+                    <div className="p-4 text-[#2A4858]">
+                      <h3 className="font-bold mb-2">{location.name}</h3>
+                      <p className="mb-2">{location.description}</p>
+                      <div className="flex flex-wrap gap-1">
+                        {Array.isArray(location.category) ? (
+                          location.category.map(cat => (
+                            <span key={cat} className="bg-[#8FD6E1] text-[#2A4858] px-2 py-1 rounded-full text-xs">
+                              {cat}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="bg-[#8FD6E1] text-[#2A4858] px-2 py-1 rounded-full text-xs">
+                            {location.category}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
           </div>
         )}
+      </main>
 
-        {view === 'list' && (
-          <div className="w-full h-full overflow-auto bg-[#F5DEB3]">
-            <ListView />
-          </div>
-        )}
-
-        {/* Location Editor */}
-        {isEditing && selectedLocation && (
-          <LocationEditor location={selectedLocation} />
-        )}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#2ca5b8] shadow-lg flex justify-around items-center p-4 z-[1001]">
+        <button
+          onClick={() => setView('map')}
+          className={`flex flex-col items-center ${
+            view === 'map' ? 'text-[#6B4984]' : 'text-[#F4EAD5] hover:text-[#6B4984]'
+          } transition-colors`}
+        >
+          <FaMap className="text-2xl" />
+          <span className="text-sm mt-1">Map</span>
+        </button>
+        <button
+          onClick={() => setView('list')}
+          className={`flex flex-col items-center ${
+            view === 'list' ? 'text-[#6B4984]' : 'text-[#F4EAD5] hover:text-[#6B4984]'
+          } transition-colors`}
+        >
+          <FaList className="text-2xl" />
+          <span className="text-sm mt-1">List</span>
+        </button>
+        <button
+          onClick={() => setView('cooper')}
+          className={`flex flex-col items-center ${
+            view === 'cooper' ? 'text-[#6B4984]' : 'text-[#F4EAD5] hover:text-[#6B4984]'
+          } transition-colors`}
+        >
+          <FaDog className="text-2xl" />
+          <span className="text-sm mt-1">Cooper</span>
+        </button>
       </div>
+
+      
+
+      {/* Location Editor */}
+      {isEditing && selectedLocation && (
+        <div className="fixed top-20 right-4 w-80 bg-[#F4EAD5] rounded-lg shadow-lg p-4 z-[1000]">
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Location name"
+              className="w-full p-2 mb-2 border border-[#6B4984] rounded focus:outline-none focus:ring-2 focus:ring-[#8FD6E1]"
+            />
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Description"
+              className="w-full p-2 mb-2 border border-[#6B4984] rounded focus:outline-none focus:ring-2 focus:ring-[#8FD6E1]"
+            />
+            <div className="mb-2">
+              <label className="block text-sm font-medium mb-1 text-[#2ca5b8]">Categories</label>
+              <div className="space-y-2">
+                {CATEGORIES.map(cat => (
+                  <label key={cat} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={categories.includes(cat)}
+                      onChange={() => toggleCategory(cat)}
+                      className="rounded text-[#8FD6E1] focus:ring-[#8FD6E1]"
+                    />
+                    <span className="text-[#2ca5b8]">{cat}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1 text-[#2A4858]">Emoji</label>
+              <div className="flex flex-wrap gap-2">
+                {availableEmojis.map((emoji, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => setEmoji(emoji)}
+                    className={`p-2 rounded ${
+                      emoji === selectedEmoji ? 'bg-[#8FD6E1] text-[#2A4858]' : 'bg-[#6B4984] text-[#F4EAD5]'
+                    }`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-between">
+              <button
+                type="submit"
+                className="bg-[#8FD6E1] hover:bg-[#6B4984] text-[#2A4858] font-bold py-2 px-4 rounded transition-colors"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLocationDelete(selectedLocation.id)}
+                className="bg-[#FF6B6B] hover:bg-[#FF8E8E] text-[#F4EAD5] font-bold py-2 px-4 rounded transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Save indicator */}
       {isAdmin && showSaveIndicator && (
@@ -717,7 +916,7 @@ function App() {
 
       {/* Cooper Party Button - Show in Cooper view for both mobile and desktop */}
       {view === 'cooper' && (
-        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-[1001]">
+        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-[1001] mb-8">
           <CooperParty />
         </div>
       )}
@@ -728,6 +927,7 @@ function App() {
         <div className="tumbleweed2">🌵</div>
         <div className="tumbleweed" style={{ animationDelay: `${Math.random() * 10}s` }}>🌵</div>
         <div className="tumbleweed2" style={{ animationDelay: `${Math.random() * 10}s` }}>🌵</div>
+      
       </div>
 
       {/* Add tumbleweed styles */}
