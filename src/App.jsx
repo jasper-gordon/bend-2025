@@ -105,6 +105,12 @@ function App() {
   const [view, setView] = useState('map'); // 'map' or 'list' or 'cooper'
   const [customEmoji, setCustomEmoji] = useState('📍');
   const [showSaveIndicator, setShowSaveIndicator] = useState(false);
+  
+  // Add state variables for location editor
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [emoji, setEmoji] = useState('📍');
 
   /**
    * @ref {Object} mapRef - Reference to the map instance
@@ -121,10 +127,14 @@ function App() {
     const savedLocations = localStorage.getItem('locations');
     const isAdminSession = localStorage.getItem('isAdminSession');
     
+    // Always start in non-admin mode
+    setIsAdmin(false);
+    
+    // Only load saved locations if there's a valid admin session
     if (isAdminSession === 'true' && savedLocations) {
       setLocations(JSON.parse(savedLocations));
-      setIsAdmin(true);
     } else {
+      // Load default locations from JSON file
       fetch('/locations.json')
         .then(response => response.json())
         .then(data => setLocations(data.locations))
@@ -157,16 +167,13 @@ function App() {
    * @description Handles admin logout
    */
   const handleLogout = () => {
+    console.log('Logout clicked'); // Debug log
     setIsAdmin(false);
     setIsEditing(false);
     setSelectedLocation(null);
     localStorage.removeItem('isAdminSession');
     localStorage.removeItem('locations');
-    // When logging out, fetch fresh data
-    fetch('/locations.json')
-      .then(response => response.json())
-      .then(data => setLocations(data.locations))
-      .catch(error => console.error('Error loading locations:', error));
+    window.location.reload();
   };
 
   /**
@@ -236,17 +243,20 @@ function App() {
    * @param {Object} e - Leaflet map click event
    */
   const handleMapClick = (e) => {
-    if (!isEditing && isAdmin) {
+    if (isAdmin) {
       const newLocation = {
         id: Date.now(),
         position: [e.latlng.lat, e.latlng.lng],
         name: '',
         description: '',
-        category: 'Food',
+        category: ['Food'],
         emoji: '📍'
       };
-      setLocations([...locations, newLocation]);
       setSelectedLocation(newLocation);
+      setName('');
+      setDescription('');
+      setCategories(['Food']);
+      setEmoji('📍');
       setIsEditing(true);
     }
   };
@@ -257,11 +267,18 @@ function App() {
    * @param {Object} updatedLocation - The updated location object
    */
   const handleLocationUpdate = (updatedLocation) => {
-    setLocations(locations.map(loc => 
-      loc.id === updatedLocation.id ? updatedLocation : loc
-    ));
-    setSelectedLocation(null);
+    setLocations(prevLocations => {
+      const existingIndex = prevLocations.findIndex(loc => loc.id === updatedLocation.id);
+      if (existingIndex >= 0) {
+        const newLocations = [...prevLocations];
+        newLocations[existingIndex] = updatedLocation;
+        return newLocations;
+      } else {
+        return [...prevLocations, updatedLocation];
+      }
+    });
     setIsEditing(false);
+    setSelectedLocation(null);
   };
 
   /**
@@ -270,9 +287,9 @@ function App() {
    * @param {number} id - The ID of the location to delete
    */
   const handleLocationDelete = (id) => {
-    setLocations(locations.filter(loc => loc.id !== id));
-    setSelectedLocation(null);
+    setLocations(prevLocations => prevLocations.filter(loc => loc.id !== id));
     setIsEditing(false);
+    setSelectedLocation(null);
   };
 
   /**
@@ -404,11 +421,13 @@ function App() {
     const map = useMap();
     
     useEffect(() => {
-      map.on('click', handleMapClick);
+      if (isAdmin) {
+        map.on('click', handleMapClick);
+      }
       return () => {
         map.off('click', handleMapClick);
       };
-    }, [map]);
+    }, [map, isAdmin]);
     
     return null;
   };
@@ -558,33 +577,22 @@ function App() {
         <h1 className="text-2xl md:text-5xl font-bold absolute left-0 right-0 text-center">
           <span className="text-[#F4EAD5] [text-shadow:_-3px_-2px_0_#ab5c95,_1px_-1px_0_#ab5c95,_-1px_1px_0_#ab5c95,_1px_1px_0_#ab5c95]">Bend 2025</span>
         </h1>
-        <div className="flex items-center space-x-2">
+        <div className="relative z-10">
           {isAdmin ? (
-            <>
+            <div className="flex items-center space-x-2">
               <button
-                onClick={() => {
-                  const dataStr = JSON.stringify({ locations }, null, 2);
-                  const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                  const url = URL.createObjectURL(dataBlob);
-                  const link = document.createElement('a');
-                  link.href = url;
-                  link.download = 'locations.json';
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                  URL.revokeObjectURL(url);
-                }}
-                className="bg-[#6B4984] hover:bg-[#8FD6E1] text-[#F4EAD5] px-3 py-1.5 rounded transition-colors"
+                onClick={handleExportLocations}
+                className="bg-[#6B4984] hover:bg-[#8FD6E1] text-[#F4EAD5] px-3 py-1.5 rounded transition-colors cursor-pointer"
               >
                 Export
               </button>
               <button
                 onClick={handleLogout}
-                className="bg-[#FF6B6B] hover:bg-[#FF8E8E] text-[#F4EAD5] px-3 py-1.5 rounded transition-colors"
+                className="bg-[#FF6B6B] hover:bg-[#FF8E8E] text-[#F4EAD5] px-3 py-1.5 rounded transition-colors cursor-pointer"
               >
                 Logout
               </button>
-            </>
+            </div>
           ) : (
             <button
               onClick={() => {
@@ -592,15 +600,11 @@ function App() {
                 if (password === ADMIN_PASSWORD) {
                   setIsAdmin(true);
                   localStorage.setItem('isAdminSession', 'true');
-                  fetch('/locations.json')
-                    .then(response => response.json())
-                    .then(data => setLocations(data.locations))
-                    .catch(error => console.error('Error loading locations:', error));
                 } else if (password) {
                   alert('Incorrect password');
                 }
               }}
-              className="fixed top-4 right-4 p-2 bg-[#2ca5b8] text-[#F4EAD5] rounded-full hover:bg-[#6B4984] transition-colors"
+              className="p-2 bg-[#2ca5b8] text-[#F4EAD5] rounded-full hover:bg-[#6B4984] transition-colors cursor-pointer"
             >
               <FaLock />
             </button>
@@ -619,7 +623,7 @@ function App() {
               />
               <h2 className="text-4xl font-bold text-[#F4EAD5] mb-4">Cooper</h2>
               <p className="text-xl text-[#F4EAD5]">
-                Corvalis Coop has been working day and night on his thesis. Something about the "single greatest, most literate sentence Central Eastern Oregon will ever read?" I'm not sure what that means, but it sounds good so let's try not to put exta pressure on him to finish it, okay? Like can you imagine if we built a whole thing to shine a spotlight on him, he would probably hate that. All the attention, the questions, the staring in admiration of his god-like mastering of word and sentences and knowing when to use ––the little funny aside thingy–– without it seeming like AI wrote your resume. Yeah, that would be bad...
+              Corvallis Coop has been working day and night on his thesis. Something about writing "the single greatest, most literate sentence Central Eastern Oregon will ever read?" I don't know what that means, but it sounds impressive, so let's all agree not to put any extra pressure on him to finish it, okay? I mean, can you imagine if we built a whole elaborate, convoluted thing just to shine a spotlight on him? He would hate that. All the attention. The questions. The silent, reverent admiration of his god-like command of words—and of knowing how to use that little dash thingy for a funny aside—without the artificial intelligencia coming after him. Yeah… no. That would be terrible. Let's not do that to him.
               </p>
             </div>
           </div>
@@ -706,8 +710,33 @@ function App() {
         ) : (
           <div className="w-full h-full">
             {/* Filter Bubbles */}
-            <div className="absolute top-20 left-0 right-0 flex justify-center gap-2 p-4 z-[1000]">
-              {/* Search Bubble */}
+            <div className="absolute top-20 left-0 right-0 flex flex-col items-center gap-2 p-2 z-[1000]">
+              {/* Category Filters */}
+              <div className="flex flex-wrap justify-center gap-1 md:gap-2">
+                {CATEGORIES.map(category => (
+                  <button
+                    key={category}
+                    onClick={() => {
+                      const newCategories = new Set(selectedCategories);
+                      if (newCategories.has(category)) {
+                        newCategories.delete(category);
+                      } else {
+                        newCategories.add(category);
+                      }
+                      setSelectedCategories(newCategories);
+                    }}
+                    className={`px-2 py-1 md:px-4 md:py-2 rounded-full transition-colors text-xs md:text-base ${
+                      selectedCategories.has(category)
+                        ? 'bg-[#2ca5b8] text-[#F4EAD5]'
+                        : 'bg-white text-[#2A4858] hover:bg-gray-100'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Search Bubble - Moved below categories */}
               <div className="relative">
                 <button
                   onClick={() => {
@@ -719,8 +748,8 @@ function App() {
                       const searchInput = document.createElement('input');
                       searchInput.type = 'text';
                       searchInput.placeholder = 'Search locations...';
-                      searchInput.className = 'px-4 py-2 rounded-full transition-colors bg-white text-[#2A4858] focus:outline-none focus:ring-2 focus:ring-[#2ca5b8]';
-                      searchInput.style.width = '200px';
+                      searchInput.className = 'px-3 py-1.5 md:px-4 md:py-2 rounded-full transition-colors bg-white text-[#2A4858] focus:outline-none focus:ring-2 focus:ring-[#2ca5b8]';
+                      searchInput.style.width = '180px';
                       
                       searchInput.classList.add('search-input');
                       searchInput.value = searchTerm;
@@ -732,33 +761,11 @@ function App() {
                       searchButton.parentNode.insertBefore(searchInput, searchButton.nextSibling);
                     }
                   }}
-                  className="search-bubble px-4 py-2 rounded-full transition-colors bg-white text-[#2A4858] hover:bg-gray-100"
+                  className="search-bubble px-3 py-1.5 md:px-4 md:py-2 rounded-full transition-colors bg-white text-[#2A4858] hover:bg-gray-100 text-sm md:text-base"
                 >
                   <FaSearch />
                 </button>
               </div>
-              
-              {CATEGORIES.map(category => (
-                <button
-                  key={category}
-                  onClick={() => {
-                    const newCategories = new Set(selectedCategories);
-                    if (newCategories.has(category)) {
-                      newCategories.delete(category);
-                    } else {
-                      newCategories.add(category);
-                    }
-                    setSelectedCategories(newCategories);
-                  }}
-                  className={`px-4 py-2 rounded-full transition-colors ${
-                    selectedCategories.has(category)
-                      ? 'bg-[#2ca5b8] text-[#F4EAD5]'
-                      : 'bg-white text-[#2A4858] hover:bg-gray-100'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
             </div>
             <MapContainer
               center={INITIAL_CENTER}
@@ -770,20 +777,32 @@ function App() {
                 url={MAP_STYLES[mapStyle].url}
                 attribution={MAP_STYLES[mapStyle].attribution}
               />
+              <MapEvents />
               {filteredLocations.map(location => (
                 <Marker
                   key={location.id}
                   position={location.position}
                   icon={createEmojiIcon(location.emoji)}
                   eventHandlers={{
-                    click: () => setSelectedLocation(location)
+                    click: () => {
+                      if (isAdmin) {
+                        setSelectedLocation(location);
+                        setIsEditing(true);
+                        setName(location.name);
+                        setDescription(location.description);
+                        setCategories(Array.isArray(location.category) ? location.category : [location.category]);
+                        setEmoji(location.emoji);
+                      } else {
+                        setSelectedLocation(location);
+                      }
+                    }
                   }}
                 >
                   <Popup>
-                    <div className="p-4 text-[#2A4858]">
-                      <h3 className="font-bold mb-2">{location.name}</h3>
-                      <p className="mb-2">{location.description}</p>
-                      <div className="flex flex-wrap gap-1">
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg mb-2">{location.name}</h3>
+                      <p className="text-gray-600 mb-2">{location.description}</p>
+                      <div className="flex flex-wrap gap-2 mb-2">
                         {Array.isArray(location.category) ? (
                           location.category.map(cat => (
                             <span key={cat} className="bg-[#8FD6E1] text-[#2A4858] px-2 py-1 rounded-full text-xs">
@@ -796,6 +815,29 @@ function App() {
                           </span>
                         )}
                       </div>
+                      {isAdmin && (
+                        <div className="flex justify-end gap-2 mt-2">
+                          <button
+                            onClick={() => {
+                              setSelectedLocation(location);
+                              setIsEditing(true);
+                              setName(location.name);
+                              setDescription(location.description);
+                              setCategories(Array.isArray(location.category) ? location.category : [location.category]);
+                              setEmoji(location.emoji);
+                            }}
+                            className="px-3 py-1 bg-[#6B4984] text-[#F4EAD5] rounded hover:bg-[#8FD6E1] transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleLocationDelete(location.id)}
+                            className="px-3 py-1 bg-[#FF6B6B] text-[#F4EAD5] rounded hover:bg-[#FF8E8E] transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </Popup>
                 </Marker>
@@ -838,9 +880,18 @@ function App() {
       
 
       {/* Location Editor */}
-      {isEditing && selectedLocation && (
+      {isEditing && (
         <div className="fixed top-20 right-4 w-80 bg-[#F4EAD5] rounded-lg shadow-lg p-4 z-[1000]">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleLocationUpdate({
+              ...selectedLocation,
+              name,
+              description,
+              category: categories,
+              emoji
+            });
+          }}>
             <input
               type="text"
               value={name}
@@ -862,7 +913,15 @@ function App() {
                     <input
                       type="checkbox"
                       checked={categories.includes(cat)}
-                      onChange={() => toggleCategory(cat)}
+                      onChange={() => {
+                        setCategories(prev => {
+                          if (prev.includes(cat)) {
+                            return prev.filter(c => c !== cat);
+                          } else {
+                            return [...prev, cat];
+                          }
+                        });
+                      }}
                       className="rounded text-[#8FD6E1] focus:ring-[#8FD6E1]"
                     />
                     <span className="text-[#2ca5b8]">{cat}</span>
@@ -872,20 +931,13 @@ function App() {
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1 text-[#2A4858]">Emoji</label>
-              <div className="flex flex-wrap gap-2">
-                {availableEmojis.map((emoji, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => setEmoji(emoji)}
-                    className={`p-2 rounded ${
-                      emoji === selectedEmoji ? 'bg-[#8FD6E1] text-[#2A4858]' : 'bg-[#6B4984] text-[#F4EAD5]'
-                    }`}
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
+              <input
+                type="text"
+                value={emoji}
+                onChange={(e) => setEmoji(e.target.value)}
+                placeholder="Enter emoji"
+                className="w-full p-2 border border-[#6B4984] rounded focus:outline-none focus:ring-2 focus:ring-[#8FD6E1]"
+              />
             </div>
             <div className="flex justify-between">
               <button
@@ -896,10 +948,13 @@ function App() {
               </button>
               <button
                 type="button"
-                onClick={() => handleLocationDelete(selectedLocation.id)}
+                onClick={() => {
+                  setIsEditing(false);
+                  setSelectedLocation(null);
+                }}
                 className="bg-[#FF6B6B] hover:bg-[#FF8E8E] text-[#F4EAD5] font-bold py-2 px-4 rounded transition-colors"
               >
-                Delete
+                Cancel
               </button>
             </div>
           </form>

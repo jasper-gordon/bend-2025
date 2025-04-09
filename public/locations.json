@@ -249,20 +249,6 @@
       "emoji": "🍺"
     },
     {
-      "id": 1743433132162,
-      "position": [
-        44.051045996915086,
-        -121.331205368042
-      ],
-      "name": "Prost",
-      "description": "Great German food and beers! Usually a lot of seating indoor outdoor, definitely get fries.",
-      "category": [
-        "Food",
-        "Beverages"
-      ],
-      "emoji": "🍺🥨"
-    },
-    {
       "id": 1743433218337,
       "position": [
         44.04387429945679,
@@ -569,6 +555,20 @@
         "Food"
       ],
       "emoji": "🍦"
+    },
+    {
+      "id": 1744210032576,
+      "position": [
+        44.04965799420603,
+        -121.31764411926271
+      ],
+      "name": "Monkless Brewing",
+      "description": "Great Belgian beers, food (you must get fries and/or warm pretzel), and vibes sitting inside or out. The perfect place to go when your friends say they want to surf in the river and you don't want to be freezing cold. Also, the fries",
+      "category": [
+        "Food",
+        "Beverages"
+      ],
+      "emoji": "🍟 🍺 "
     }
   ]
 }
